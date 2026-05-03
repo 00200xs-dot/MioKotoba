@@ -8,6 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -18,6 +22,9 @@ import com.akira.miokotoba.ui.components.WordCard
 
 @Composable
 fun StudyPage() {
+    //中心卡片翻转状态
+    var isCenterFlipped by rememberSaveable { mutableStateOf(false) }
+
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
@@ -32,10 +39,9 @@ fun StudyPage() {
         Box(modifier = Modifier.fillMaxSize()) {
             WordCard(
                 modifier = Modifier.align(Alignment.Center),
-                kana = "あ",
-                kanji = "亜",
-                translation = "Asia",
-                romaji = "a"
+                kana = "あ", kanji = "亜", translation = "Asia", romaji = "a",
+                isFlipped = isCenterFlipped,
+                onCardClick = { isCenterFlipped = !isCenterFlipped }
             )
 
             // 左侧卡片堆
@@ -89,7 +95,9 @@ fun SideCardStack(
                     .width(cardWidth)
                     .scale(scaleFactor),
                 kana = "", kanji = "", translation = "", romaji = "",
-                borderStroke = stackBorder
+                borderStroke = stackBorder,
+                isFlipped = false,
+                onCardClick = null
             )
         }
     }
