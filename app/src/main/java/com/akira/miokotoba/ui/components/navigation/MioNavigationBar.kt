@@ -8,32 +8,31 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.akira.miokotoba.ui.navigation.Navigation
+import com.akira.miokotoba.ui.navigation.BottomNavItem
 
 @Composable
 fun MioNavigationBar(
-    selectedScreen: Int,
-    onScreenSelected: (Int) -> Unit
+    selectedItem: BottomNavItem,
+    onScreenSelected: (BottomNavItem) -> Unit
 ) {
     NavigationBar(
-        // 使用 surfaceContainer 保持与顶栏一致的容器感
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
         tonalElevation = 8.dp
     ) {
-        Navigation.entries.forEachIndexed { index, navigation ->
+        BottomNavItem.entries.forEach { item ->
             NavigationBarItem(
-                selected = selectedScreen == index,
-                onClick = { onScreenSelected(index) },
+                selected = selectedItem == item,
+                onClick = { onScreenSelected(item) },
                 label = {
                     Text(
-                        text = navigation.label,
+                        text = item.label,
                         style = MaterialTheme.typography.labelMedium
                     )
                 },
                 icon = {
                     Icon(
-                        painter = painterResource(id = navigation.iconRes),
-                        contentDescription = navigation.label
+                        painter = painterResource(id = item.iconRes),
+                        contentDescription = item.label
                     )
                 }
             )

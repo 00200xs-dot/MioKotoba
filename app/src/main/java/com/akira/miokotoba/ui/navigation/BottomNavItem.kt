@@ -2,7 +2,7 @@ package com.akira.miokotoba.ui.navigation
 
 import com.akira.miokotoba.R
 
-enum class Navigation(
+enum class BottomNavItem(
     val route: String,   //不启用 预留
     val label: String,
     val iconRes: Int

@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -19,37 +20,42 @@ import com.akira.miokotoba.PlaceholderPage
 import com.akira.miokotoba.ui.features.study.StudyPage
 import com.akira.miokotoba.ui.components.navigation.MioNavigationBar
 import com.akira.miokotoba.ui.components.topbar.MioTopBar
-import com.akira.miokotoba.ui.navigation.Navigation
+import com.akira.miokotoba.ui.components.topbar.TopBarMode
+import com.akira.miokotoba.ui.navigation.BottomNavItem
 
 @Composable
 fun MainScreen() {
-    var selectedScreen by rememberSaveable { mutableStateOf(Navigation.Study.ordinal) }
-    var isSearchMode by rememberSaveable { mutableStateOf(false) }
+    var selectedItem by rememberSaveable { mutableStateOf(BottomNavItem.Study) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
-
-    val currentScreen = Navigation.entries[selectedScreen]
-    var isStudyScreen = currentScreen == Navigation.Study
+    var topBarMode by remember { mutableStateOf<TopBarMode>(TopBarMode.Focus) }
 
     Scaffold(
         contentColor = MaterialTheme.colorScheme.onBackground,
 
         bottomBar = {
             MioNavigationBar(
-                selectedScreen = selectedScreen,
-                onScreenSelected = { selectedScreen = it }
+                selectedItem = selectedItem,
+                onScreenSelected = {
+                    if (selectedItem != it) {
+                        searchQuery = ""
+                        topBarMode = if (it == BottomNavItem.Study) {
+                            TopBarMode.Focus
+                        } else {
+                            TopBarMode.Default
+                        }
+                    }
+                    selectedItem = it
+                }
             )
         },
         topBar = {
             MioTopBar(
-                title = Navigation.entries[selectedScreen].label,
-                isSearchMode = isSearchMode,
-                onSearchModeChange = { isSearchMode = it },
+                mode = topBarMode,
+                onModeChange = { topBarMode = it },
+                title = selectedItem.label,
                 searchQuery = searchQuery,
-                onQueryChange = { searchQuery = it },
-                isStudyScreen = isStudyScreen,
-            ) {
-                //预留
-            }
+                onQueryChange = { searchQuery = it }
+            )
         }
     ) { innerPadding ->
         Box(
@@ -58,16 +64,16 @@ fun MainScreen() {
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background),
         ) {
-            when (Navigation.entries[selectedScreen]) {
-                Navigation.Study -> Column(
+            when (selectedItem) {
+                BottomNavItem.Study -> Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(top = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) { StudyPage() }
 
-                Navigation.Library -> PlaceholderPage("单词库")
-                Navigation.Settings -> PlaceholderPage("设置")
+                BottomNavItem.Library -> PlaceholderPage("单词库")
+                BottomNavItem.Settings -> PlaceholderPage("设置")
             }
         }
     }

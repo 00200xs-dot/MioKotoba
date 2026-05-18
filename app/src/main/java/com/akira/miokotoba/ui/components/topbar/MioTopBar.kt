@@ -28,16 +28,25 @@ import com.akira.miokotoba.R
 
 @Composable
 fun MioTopBar(
+    mode: TopBarMode,
+    onModeChange: (TopBarMode) -> Unit,
     title: String,
-    isSearchMode: Boolean,
-    onSearchModeChange: (Boolean) -> Unit,
     searchQuery: String,
-    onQueryChange: (String) -> Unit,
-    isStudyScreen: Boolean,
-    function: () -> Unit,
+    onQueryChange: (String) -> Unit
+) {
+    when (mode) {
+        is TopBarMode.Default -> DefaultTopBar(title, onModeChange)
+        is TopBarMode.Search -> SearchTopBar(onModeChange, onQueryChange, searchQuery)
+        is TopBarMode.Focus -> FocusTopBar(title)
+    }
+}
+
+@Composable
+private fun DefaultTopBar(
+    title: String,
+    onModeChange: (TopBarMode) -> Unit
 ) {
     Surface(
-        // 建议：如果你想要 Monica 的统一感，这里建议改为 surfaceContainer
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -49,72 +58,110 @@ fun MioTopBar(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            // --- 1. 左侧标题 ---
-            if (!isSearchMode) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.align(Alignment.CenterStart)
-                )
-            }
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
 
-            // --- 2. 右侧交互区域 ---
-            if (isSearchMode) {
-                // 搜索模式：全宽输入框
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    shape = RoundedCornerShape(28.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    ) {
-                        BasicTextField(
-                            value = searchQuery,
-                            onValueChange = onQueryChange,
-                            modifier = Modifier.weight(1f),
-                            singleLine = true,
-                        )
-                        IconButton(onClick = { onSearchModeChange(false) }) {
-                            Icon(
-                                painterResource(id = R.drawable.ic_topbar_close),
-                                contentDescription = "关闭"
-                            )
-                        }
-                    }
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .fillMaxWidth(0.2f)
+                    .height(56.dp)
+                    .clickable { onModeChange(TopBarMode.Search) },
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        painterResource(id = R.drawable.ic_topbar_search),
+                        contentDescription = "展开"
+                    )
                 }
-            } else if (!isStudyScreen) {
-                // 非记忆页面：显示搜索胶囊
-                Surface(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxWidth(0.2f)
-                        .height(56.dp)
-                        .clickable { onSearchModeChange(true) },
-                    shape = RoundedCornerShape(28.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            painterResource(id = R.drawable.ic_topbar_search),
-                            contentDescription = "展开"
-                        )
-                    }
-                }
-            } else {
-                // 记忆页面：显示鼓励文字（不带胶囊背景）
-                Text(
-                    text = "加油 ✨",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontSize = 20.sp,
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    color = MaterialTheme.colorScheme.primary
-                )
             }
+        }
+    }
+}
+
+@Composable
+private fun SearchTopBar(
+    onModeChange: (TopBarMode) -> Unit,
+    onQueryChange: (String) -> Unit,
+    searchQuery: String,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .heightIn(min = 88.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surfaceContainerHigh
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    BasicTextField(
+                        value = searchQuery,
+                        onValueChange = onQueryChange,
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
+                    )
+                    IconButton(onClick = { onModeChange(TopBarMode.Default) }) {
+                        Icon(
+                            painterResource(id = R.drawable.ic_topbar_close),
+                            contentDescription = "关闭"
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FocusTopBar(
+    title: String
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .heightIn(min = 88.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
+
+            Text(
+                text = "加油 ✨",
+                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 20.sp,
+                modifier = Modifier.align(Alignment.CenterEnd),
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
