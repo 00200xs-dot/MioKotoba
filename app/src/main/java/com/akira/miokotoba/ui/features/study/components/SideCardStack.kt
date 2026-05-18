@@ -1,9 +1,10 @@
-package com.akira.miokotoba.ui.components
+package com.akira.miokotoba.ui.features.study.components
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.width
@@ -44,7 +45,7 @@ fun SideCardStack(
     //限制最多显示3张
     val displayCount = count.coerceAtMost(3)
 
-    val stackBorder = androidx.compose.foundation.BorderStroke(
+    val stackBorder = BorderStroke(
         width = 0.5.dp,
         color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
     )

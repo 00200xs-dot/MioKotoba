@@ -1,4 +1,4 @@
-package com.akira.miokotoba.ui.components
+package com.akira.miokotoba.ui.components.navigation
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.akira.miokotoba.ui.Navigation
+import com.akira.miokotoba.ui.navigation.Navigation
 
 @Composable
 fun MioNavigationBar(

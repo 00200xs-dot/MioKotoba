@@ -1,4 +1,4 @@
-package com.akira.miokotoba.ui.animation
+package com.akira.miokotoba.ui.features.study.animations
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween

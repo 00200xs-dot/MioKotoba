@@ -1,4 +1,4 @@
-package com.akira.miokotoba.ui.components
+package com.akira.miokotoba.ui.components.topbar
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

@@ -16,9 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.PlaceholderPage
-import com.akira.miokotoba.ui.screens.StudyPage
-import com.akira.miokotoba.ui.components.MioNavigationBar
-import com.akira.miokotoba.ui.components.MioTopBar
+import com.akira.miokotoba.ui.features.study.StudyPage
+import com.akira.miokotoba.ui.components.navigation.MioNavigationBar
+import com.akira.miokotoba.ui.components.topbar.MioTopBar
+import com.akira.miokotoba.ui.navigation.Navigation
 
 @Composable
 fun MainScreen() {

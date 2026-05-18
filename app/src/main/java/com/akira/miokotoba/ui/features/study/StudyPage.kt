@@ -1,4 +1,4 @@
-package com.akira.miokotoba.ui.screens
+package com.akira.miokotoba.ui.features.study
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
@@ -24,9 +24,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.akira.miokotoba.ui.animation.swipeCardToSide
-import com.akira.miokotoba.ui.components.SideCardStack
-import com.akira.miokotoba.ui.components.WordCard
+import com.akira.miokotoba.ui.features.study.animations.swipeCardToSide
+import com.akira.miokotoba.ui.features.study.components.SideCardStack
+import com.akira.miokotoba.ui.features.study.components.WordCard
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 

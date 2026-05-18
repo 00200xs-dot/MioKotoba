@@ -1,4 +1,4 @@
-package com.akira.miokotoba.ui
+package com.akira.miokotoba.ui.navigation
 
 import com.akira.miokotoba.R
 
