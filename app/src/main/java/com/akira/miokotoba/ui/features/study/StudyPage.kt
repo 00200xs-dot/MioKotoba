@@ -32,7 +32,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun StudyPage() {
-    // 1. 状态声明 (建议放在最顶部)
+    // 1. 状态声明
     var isCenterFlipped by rememberSaveable { mutableStateOf(false) }
     var leftCount by rememberSaveable { mutableIntStateOf(0) }
     var rightCount by rememberSaveable { mutableIntStateOf(0) }

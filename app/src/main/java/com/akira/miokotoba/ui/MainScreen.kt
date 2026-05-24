@@ -17,10 +17,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.PlaceholderPage
+import com.akira.miokotoba.model.WordBook
 import com.akira.miokotoba.ui.features.study.StudyPage
 import com.akira.miokotoba.ui.components.navigation.MioNavigationBar
 import com.akira.miokotoba.ui.components.topbar.MioTopBar
 import com.akira.miokotoba.ui.components.topbar.TopBarMode
+import com.akira.miokotoba.ui.features.wordbook.WordBookDetailPage
+import com.akira.miokotoba.ui.features.wordbook.WordBookPage
 import com.akira.miokotoba.ui.navigation.BottomNavItem
 
 @Composable
@@ -28,34 +31,40 @@ fun MainScreen() {
     var selectedItem by rememberSaveable { mutableStateOf(BottomNavItem.Study) }
     var searchQuery by rememberSaveable { mutableStateOf("") }
     var topBarMode by remember { mutableStateOf<TopBarMode>(TopBarMode.Focus) }
+    // 当前打开的词书详情页
+    var currentDetailBook: WordBook? by rememberSaveable { mutableStateOf(null) }
 
     Scaffold(
         contentColor = MaterialTheme.colorScheme.onBackground,
 
         bottomBar = {
-            MioNavigationBar(
-                selectedItem = selectedItem,
-                onScreenSelected = {
-                    if (selectedItem != it) {
-                        searchQuery = ""
-                        topBarMode = if (it == BottomNavItem.Study) {
-                            TopBarMode.Focus
-                        } else {
-                            TopBarMode.Default
+            if (currentDetailBook == null) {
+                MioNavigationBar(
+                    selectedItem = selectedItem,
+                    onScreenSelected = {
+                        if (selectedItem != it) {
+                            searchQuery = ""
+                            topBarMode = if (it == BottomNavItem.Study) {
+                                TopBarMode.Focus
+                            } else {
+                                TopBarMode.Default
+                            }
                         }
+                        selectedItem = it
                     }
-                    selectedItem = it
-                }
-            )
+                )
+            }
         },
         topBar = {
-            MioTopBar(
-                mode = topBarMode,
-                onModeChange = { topBarMode = it },
-                title = selectedItem.label,
-                searchQuery = searchQuery,
-                onQueryChange = { searchQuery = it }
-            )
+            if (currentDetailBook == null) {
+                MioTopBar(
+                    mode = topBarMode,
+                    onModeChange = { topBarMode = it },
+                    title = selectedItem.label,
+                    searchQuery = searchQuery,
+                    onQueryChange = { searchQuery = it }
+                )
+            }
         }
     ) { innerPadding ->
         Box(
@@ -64,16 +73,18 @@ fun MainScreen() {
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background),
         ) {
-            when (selectedItem) {
-                BottomNavItem.Study -> Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) { StudyPage() }
+            when {
+                (currentDetailBook != null) -> WordBookDetailPage(
+                    wordBook = currentDetailBook!!,
+                    onBack = { currentDetailBook = null }
+                )
 
-                BottomNavItem.Library -> PlaceholderPage("单词库")
-                BottomNavItem.Settings -> PlaceholderPage("设置")
+                selectedItem == BottomNavItem.Study -> StudyPage()
+                selectedItem == BottomNavItem.WordBook -> WordBookPage(
+                    searchQuery = searchQuery,
+                    onBookClick = { currentDetailBook = it })
+
+                selectedItem == BottomNavItem.Settings -> PlaceholderPage("设置")
             }
         }
     }
