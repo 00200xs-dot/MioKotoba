@@ -132,7 +132,7 @@ fun WordBookPage(
                 .padding(vertical = 60.dp, horizontal = 16.dp),
         ) {
             Icon(
-                painterResource(id = R.drawable.ic_wordbookpage_add),
+                painterResource(id = R.drawable.ic_add),
                 contentDescription = "添加单词本"
             )
         }
@@ -182,6 +182,8 @@ fun WordBookPage(
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
+                    // 空输入检测
+                    enabled = name.isNotBlank() && desc.isNotBlank(),
                     onClick = {
                         val newBook = WordBook(
                             id = java.util.UUID.randomUUID().toString(),    // 生成全局唯一TD

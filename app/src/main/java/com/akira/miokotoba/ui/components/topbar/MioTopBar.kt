@@ -69,8 +69,9 @@ private fun DefaultTopBar(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .fillMaxWidth(0.2f)
-                    .height(56.dp)
-                    .clickable { onModeChange(TopBarMode.Search) },
+                    .height(56.dp),
+                //.clickable {  },
+                onClick = { onModeChange(TopBarMode.Search) },
                 shape = RoundedCornerShape(28.dp),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
