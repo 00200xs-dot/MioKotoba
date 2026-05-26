@@ -15,9 +15,10 @@ data class WordBook(
  * 单词
  */
 data class Word(
-    val id: String, //唯一标识
-    var kanji: String,  //日文汉字
-    var kana: String,   //假名读音
-    var meaning: String,    //中文释义
-    var mastered: Boolean   //是否掌握
+    val id: String,         // 唯一标识
+    val kanji: String?,     // 汉字写法，纯假名词为 null
+    val kana: String,       // 假名读音
+    val romaji: String,     // 罗马音
+    val meaning: String,    // 中文释义
+    var mastered: Boolean   // 是否掌握
 )

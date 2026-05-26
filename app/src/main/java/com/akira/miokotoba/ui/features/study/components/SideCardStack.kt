@@ -77,7 +77,7 @@ fun SideCardStack(
                 ),
                 label = "cardStep"
             )
-            WordCard(
+            WordCardBase(
                 modifier = Modifier
                     .graphicsLayer {
                         alpha = animatedAlpha
@@ -87,10 +87,11 @@ fun SideCardStack(
                     )
                     .width(cardWidth)
                     .scale(scaleFactor),
-                kana = "", kanji = "", translation = "", romaji = "",
                 borderStroke = stackBorder,
-                isFlipped = false,
-                onCardClick = null
+                isShowingBack = false,
+                // 卡片堆不需要正反两面内容
+                frontContent = {},
+                backContent = {},
             )
         }
     }

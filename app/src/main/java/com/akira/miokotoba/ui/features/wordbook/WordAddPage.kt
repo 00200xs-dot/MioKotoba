@@ -37,6 +37,7 @@ fun WordAddPage(
 ) {
     var kanji by remember { mutableStateOf("") }
     var kana by remember { mutableStateOf("") }
+    var romaji by remember { mutableStateOf("") }
     var meaning by remember { mutableStateOf("") }
 
     Scaffold(
@@ -94,6 +95,17 @@ fun WordAddPage(
                     singleLine = true,
                     shape = RoundedCornerShape(16.dp)
                 )
+                // 罗马音
+                OutlinedTextField(
+                    value = romaji,
+                    onValueChange = { romaji = it },
+                    label = { Text("罗马音") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
+                    singleLine = true,
+                    shape = RoundedCornerShape(16.dp)
+                )
                 // 中文释义
                 OutlinedTextField(
                     value = meaning,
@@ -112,13 +124,14 @@ fun WordAddPage(
                         .padding(10.dp),
                     shape = RoundedCornerShape(16.dp),
                     // 空输入检测
-                    enabled = kanji.isNotBlank() && kana.isNotBlank() && meaning.isNotBlank(),
+                    enabled = kana.isNotBlank() && meaning.isNotBlank() && romaji.isNotBlank(),
                     onClick = {
                         onWordAdded(
                             Word(
                                 id = java.util.UUID.randomUUID().toString(),
-                                kanji = kanji,
+                                kanji = kanji.ifBlank { null },
                                 kana = kana,
+                                romaji = romaji,
                                 meaning = meaning,
                                 mastered = false
                             )

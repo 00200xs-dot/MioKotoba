@@ -31,7 +31,7 @@ fun WordEntryCard(
         Column(modifier = Modifier.padding(16.dp)) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
-                    text = word.kanji,
+                    text = word.kanji ?: word.kana,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Spacer(modifier = Modifier.weight(1f))
@@ -43,7 +43,7 @@ fun WordEntryCard(
                 }
             }
             Text(
-                text = word.kana,
+                text = if (word.kanji != null) "${word.kana}  ${word.romaji}" else word.romaji,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -62,9 +62,10 @@ fun test() {
     WordEntryCard(
         Word(
             id = "111",
-            kanji = "汉字",
-            kana = "假名",
-            meaning = "释义",
+            kanji = "漢字",
+            kana = "かんじ",
+            romaji = "kanji",
+            meaning = "汉字",
             mastered = true
         ),
         onClick = {}

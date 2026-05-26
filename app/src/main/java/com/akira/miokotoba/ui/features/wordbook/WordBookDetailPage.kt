@@ -39,17 +39,17 @@ fun WordBookDetailPage(
     var words by remember {
         mutableStateOf(
             listOf(
-                Word("1", "食べる", "たべる", "吃", mastered = false),
-                Word("2", "食べる", "たべる", "吃", mastered = false),
-                Word("3", "食べる", "たべる", "吃", mastered = false),
-                Word("4", "食べる", "たべる", "吃", mastered = false),
-                Word("5", "食べる", "たべる", "吃", mastered = false),
-                Word("6", "食べる", "たべる", "吃", mastered = false),
-                Word("7", "食べる", "たべる", "吃", mastered = false),
-                Word("8", "食べる", "たべる", "吃", mastered = false),
-                Word("9", "食べる", "たべる", "吃", mastered = false),
-                Word("10", "食べる", "たべる", "吃", mastered = false),
-                Word("11", "飲む", "のむ", "喝", mastered = true)
+                Word("1", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("2", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("3", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("4", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("5", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("6", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("7", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("8", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("9", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("10", "食べる", "たべる", "taberu", "吃", mastered = false),
+                Word("11", "飲む", "のむ", "nomu", "喝", mastered = true)
             )
         )
     }

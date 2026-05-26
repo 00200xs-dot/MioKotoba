@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.features.study.animations.swipeCardToSide
 import com.akira.miokotoba.ui.features.study.components.SideCardStack
 import com.akira.miokotoba.ui.features.study.components.WordCard
@@ -42,7 +43,11 @@ fun StudyPage() {
     val scale = remember { Animatable(1f) }
     val scope = rememberCoroutineScope()
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
         val peekWidth = 40.dp
         val cardWidth = maxWidth * 0.6f
         val screenWidth = constraints.maxWidth.toFloat()
@@ -82,13 +87,51 @@ fun StudyPage() {
                                     val y = offsetY.value
                                     // 根据方向调用封装好的动画函数
                                     when {
-                                        x > 300f -> swipeCardToSide(offsetX, offsetY, scale, screenWidth, y) { rightCount++ }
-                                        x < -300f -> swipeCardToSide(offsetX, offsetY, scale, -screenWidth, y) { leftCount++ }
-                                        y > 400f -> swipeCardToSide(offsetX, offsetY, scale, x, screenHeight) { /* 模糊逻辑 */ }
-                                        y < -400f -> swipeCardToSide(offsetX, offsetY, scale, x, -screenHeight) { /* 简单逻辑 */ }
+                                        x > 300f -> swipeCardToSide(
+                                            offsetX,
+                                            offsetY,
+                                            scale,
+                                            screenWidth,
+                                            y
+                                        ) { rightCount++ }
+
+                                        x < -300f -> swipeCardToSide(
+                                            offsetX,
+                                            offsetY,
+                                            scale,
+                                            -screenWidth,
+                                            y
+                                        ) { leftCount++ }
+
+                                        y > 400f -> swipeCardToSide(
+                                            offsetX,
+                                            offsetY,
+                                            scale,
+                                            x,
+                                            screenHeight
+                                        ) { /* 模糊逻辑 */ }
+
+                                        y < -400f -> swipeCardToSide(
+                                            offsetX,
+                                            offsetY,
+                                            scale,
+                                            x,
+                                            -screenHeight
+                                        ) { /* 简单逻辑 */ }
+
                                         else -> {
-                                            launch { offsetX.animateTo(0f, spring(Spring.DampingRatioLowBouncy)) }
-                                            launch { offsetY.animateTo(0f, spring(Spring.DampingRatioLowBouncy)) }
+                                            launch {
+                                                offsetX.animateTo(
+                                                    0f,
+                                                    spring(Spring.DampingRatioLowBouncy)
+                                                )
+                                            }
+                                            launch {
+                                                offsetY.animateTo(
+                                                    0f,
+                                                    spring(Spring.DampingRatioLowBouncy)
+                                                )
+                                            }
                                             launch { scale.animateTo(1f, spring()) }
                                         }
                                     }
@@ -96,7 +139,15 @@ fun StudyPage() {
                             }
                         )
                     },
-                kana = "あ", kanji = "亜", translation = "Asia", romaji = "a",
+                word = Word(
+                    id = "test",
+                    kana = "あ",
+                    kanji = "亜",
+                    romaji = "a",
+                    meaning = "Asia",
+                    mastered = false
+
+                ),
                 isFlipped = isCenterFlipped,
                 onCardClick = { isCenterFlipped = !isCenterFlipped }
             )
