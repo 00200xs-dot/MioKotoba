@@ -36,7 +36,7 @@ fun WordCardBase(
     frontContent: @Composable () -> Unit,
     // 背面内容
     backContent: @Composable () -> Unit
-){
+) {
     val cardColor = MaterialTheme.colorScheme.surfaceContainerHigh
 
     Card(
@@ -58,47 +58,73 @@ fun WordCardBase(
         ),
     ) {
         if (isShowingBack) {
-            // 背面
-            Column(modifier = Modifier.fillMaxSize().padding(top = 12.dp, bottom = 12.dp)) {
-                // 顶部装饰细线
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(2.dp)
-                        .clip(RoundedCornerShape(topStart = 45.dp, topEnd = 45.dp))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
-                )
-                // 内容
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(24.dp)
-                        .graphicsLayer { rotationY = contentRotationY },
-                    contentAlignment = Alignment.Center
-                ) {
-                    backContent()
-                }
-                // 底部装饰细线
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(2.dp)
-                        .clip(RoundedCornerShape(bottomStart = 45.dp, bottomEnd = 45.dp))
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
-                )
-            }
+            BackLayout(
+                contentRotationY = contentRotationY,
+                content = backContent
+            )
         } else {
-            // 正面
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp)
-                    .graphicsLayer { rotationY = contentRotationY },
-                contentAlignment = Alignment.Center
-            ) {
-                frontContent()
-            }
+            FrontLayout(
+                contentRotationY = contentRotationY,
+                content = frontContent
+            )
         }
+    }
+}
+
+// 卡片背面
+@Composable
+private fun BackLayout(
+    contentRotationY: Float = 0f,
+    content: @Composable () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 12.dp, bottom = 12.dp)
+    ) {
+        // 顶部装饰细线
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .clip(RoundedCornerShape(topStart = 45.dp, topEnd = 45.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        )
+        // 内容
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .padding(24.dp)
+                .graphicsLayer { rotationY = contentRotationY },
+            contentAlignment = Alignment.Center
+        ) {
+            content()
+        }
+        // 底部装饰细线
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .clip(RoundedCornerShape(bottomStart = 45.dp, bottomEnd = 45.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+        )
+    }
+}
+
+// 卡片正面
+@Composable
+private fun FrontLayout(
+    contentRotationY: Float = 0f,
+    content: @Composable () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp)
+            .graphicsLayer { rotationY = contentRotationY },
+        contentAlignment = Alignment.Center
+    ) {
+        content()
     }
 }
