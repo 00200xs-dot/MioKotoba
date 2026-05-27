@@ -11,13 +11,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 
@@ -36,7 +37,9 @@ fun WordCardBase(
     // 背面内容
     backContent: @Composable () -> Unit
 ){
-    ElevatedCard(
+    val cardColor = MaterialTheme.colorScheme.surfaceContainerHigh
+
+    Card(
         modifier = modifier
             // 如果有边框 应用边框参数
             .then(
@@ -44,19 +47,15 @@ fun WordCardBase(
                     Modifier.border(borderStroke, RoundedCornerShape(45.dp))
                 } else Modifier
             )
+            .shadow(8.dp, RoundedCornerShape(45.dp))
             .fillMaxWidth(0.6f)
             .aspectRatio(0.6f),
         onClick = onClick ?: {},
         enabled = onClick != null,
         shape = RoundedCornerShape(45.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        colors = CardDefaults.cardColors(
+            containerColor = cardColor
         ),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 8.dp,
-            pressedElevation = 12.dp,
-            hoveredElevation = 10.dp
-        )
     ) {
         if (isShowingBack) {
             // 背面
