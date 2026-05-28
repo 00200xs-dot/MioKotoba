@@ -18,7 +18,7 @@ fun Modifier.tiltOnTouch(): Modifier = composed {
 
     pointerInput(Unit) {
         detectDragGestures(
-            onDrag = { change, dragAmount ->
+            onDrag = { change, _ ->
                 change.consume()
                 scope.launch {
                     angleX.snapTo((change.position.y / size.height - 0.5f) * 10f)

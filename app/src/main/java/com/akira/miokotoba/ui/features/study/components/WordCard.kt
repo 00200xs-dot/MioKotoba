@@ -3,9 +3,12 @@ package com.akira.miokotoba.ui.features.study.components
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -62,6 +65,7 @@ fun WordCard(
                     text = word.kanji ?: word.kana,
                     fontSize = 32.sp
                 )
+                Spacer(modifier = Modifier.padding(14.dp))
                 // 发音 Chip
                 if (word.kanji != null) {
                     InfoChip("読み", word.kana, word.romaji)
@@ -82,7 +86,9 @@ private fun InfoChip(
     secondary: String? = null
 ) {
     Surface(
-        modifier = Modifier.padding(4.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(4.dp),
         shape = RoundedCornerShape(12.dp),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
@@ -94,35 +100,29 @@ private fun InfoChip(
                 text = label,
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.primary
-
             )
-            Spacer(Modifier.width(8.dp))
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+
             ) {
-                Text(
-                    text = primary,
-                    fontSize = 18.sp
-                )
-                if (secondary != null) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
                     Text(
-                        text = secondary,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = primary,
+                        fontSize = 18.sp
                     )
+                    if (secondary != null) {
+                        Text(
+                            text = secondary,
+                            fontSize = 14.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun test() {
-    InfoChip(
-        label = "label",
-        primary = "primary",
-        secondary = "secondary"
-    )
 }
