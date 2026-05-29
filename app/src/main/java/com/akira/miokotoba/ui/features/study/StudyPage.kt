@@ -39,8 +39,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.model.Word
+import com.akira.miokotoba.ui.animation.AnimationUtils
 import com.akira.miokotoba.ui.features.study.components.WordCard
 import com.akira.miokotoba.ui.modifier.tiltOnTouch
+import com.akira.miokotoba.ui.theme.MioDimens
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
@@ -77,7 +79,7 @@ fun StudyPage() {
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(MioDimens.gapLg)
     ) {
         val screenHeight = constraints.maxHeight.toFloat()
 
@@ -115,7 +117,12 @@ fun StudyPage() {
                         showRatingButtons = false
                         scope.launch {
                             surfaceWidth.snapTo(48f)
-                            launch { surfaceAlpha.animateTo(1f, tween(200)) }
+                            launch {
+                                surfaceAlpha.animateTo(
+                                    1f,
+                                    tween(AnimationUtils.DURATION_SHORT)
+                                )
+                            }
                             launch { ratingButtonY.animateTo(0f, spring()) }
                             launch { surfaceWidth.animateTo(320f, spring()) }
                             showRatingButtons = true
@@ -123,7 +130,12 @@ fun StudyPage() {
                     } else {
                         scope.launch {
                             showRatingButtons = false
-                            launch { surfaceAlpha.animateTo(0f, tween(200)) }
+                            launch {
+                                surfaceAlpha.animateTo(
+                                    0f,
+                                    tween(AnimationUtils.DURATION_SHORT)
+                                )
+                            }
                             launch { surfaceWidth.animateTo(48f, spring()) }
                             launch { ratingButtonY.animateTo(300f, spring()) }
                         }
@@ -134,11 +146,11 @@ fun StudyPage() {
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
+                    .padding(bottom = MioDimens.gapLg)
                     .offset { IntOffset(0, ratingButtonY.value.roundToInt()) }
                     .width(surfaceWidth.value.roundToInt().dp)
                     .graphicsLayer { alpha = surfaceAlpha.value },
-                shape = RoundedCornerShape(16.dp),
+                shape = RoundedCornerShape(MioDimens.radiusLg),
                 shadowElevation = 0.dp,
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
@@ -149,19 +161,32 @@ fun StudyPage() {
                     AnimatedContent(
                         targetState = showRatingButtons,
                         transitionSpec = {
-                            fadeIn(tween(200)) togetherWith fadeOut(tween(200))
+                            fadeIn(
+                                tween(
+                                    AnimationUtils.DURATION_SHORT
+                                )
+                            ) togetherWith fadeOut(
+                                tween(
+                                    AnimationUtils.DURATION_SHORT
+                                )
+                            )
                         }
                     ) { visible ->
                         if (!visible) {
                             Text("")
                         } else {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(MioDimens.gapSm)) {
                                 RatingChip(
                                     label = "不认识",
                                     onClick = {
                                         scope.launch {
                                             showRatingButtons = false
-                                            launch { surfaceAlpha.animateTo(0f, tween(200)) }
+                                            launch {
+                                                surfaceAlpha.animateTo(
+                                                    0f,
+                                                    tween(AnimationUtils.DURATION_SHORT)
+                                                )
+                                            }
                                             launch { surfaceWidth.animateTo(48f, spring()) }
                                             launch { ratingButtonY.animateTo(300f, spring()) }
                                             exitCard(
@@ -181,7 +206,12 @@ fun StudyPage() {
                                     onClick = {
                                         scope.launch {
                                             showRatingButtons = false
-                                            launch { surfaceAlpha.animateTo(0f, tween(200)) }
+                                            launch {
+                                                surfaceAlpha.animateTo(
+                                                    0f,
+                                                    tween(AnimationUtils.DURATION_SHORT)
+                                                )
+                                            }
                                             launch { surfaceWidth.animateTo(48f, spring()) }
                                             launch { ratingButtonY.animateTo(300f, spring()) }
                                             exitCard(
@@ -201,7 +231,12 @@ fun StudyPage() {
                                     onClick = {
                                         scope.launch {
                                             showRatingButtons = false
-                                            launch { surfaceAlpha.animateTo(0f, tween(200)) }
+                                            launch {
+                                                surfaceAlpha.animateTo(
+                                                    0f,
+                                                    tween(AnimationUtils.DURATION_SHORT)
+                                                )
+                                            }
                                             launch { surfaceWidth.animateTo(48f, spring()) }
                                             launch { ratingButtonY.animateTo(300f, spring()) }
                                             exitCard(
@@ -221,7 +256,12 @@ fun StudyPage() {
                                     onClick = {
                                         scope.launch {
                                             showRatingButtons = false
-                                            launch { surfaceAlpha.animateTo(0f, tween(200)) }
+                                            launch {
+                                                surfaceAlpha.animateTo(
+                                                    0f,
+                                                    tween(AnimationUtils.DURATION_SHORT)
+                                                )
+                                            }
                                             launch { surfaceWidth.animateTo(48f, spring()) }
                                             launch { ratingButtonY.animateTo(300f, spring()) }
                                             exitCard(
@@ -256,9 +296,9 @@ private suspend fun exitCard(
     // 随机 ±5°
     val randomAngle = Random.nextFloat() * 10f - 5f
     coroutineScope {
-        launch { offsetY.animateTo(targetY, tween(300)) }
-        launch { tiltZ.animateTo(randomAngle, tween(300)) }
-        launch { scale.animateTo(0.8f, tween(300)) }
+        launch { offsetY.animateTo(targetY, tween(AnimationUtils.DURATION_MEDIUM)) }
+        launch { tiltZ.animateTo(randomAngle, tween(AnimationUtils.DURATION_MEDIUM)) }
+        launch { scale.animateTo(0.8f, tween(AnimationUtils.DURATION_MEDIUM)) }
     }
     onComplete()
 }
@@ -272,12 +312,12 @@ private fun RatingChip(
     Surface(
         modifier = modifier.widthIn(min = 72.dp),
         onClick = onClick,
-        shape = RoundedCornerShape(45.dp),
+        shape = RoundedCornerShape(MioDimens.radiusPill),
         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            modifier = Modifier.padding(horizontal = MioDimens.gapMd, vertical = MioDimens.gapMd),
             style = MaterialTheme.typography.labelLarge,
             textAlign = TextAlign.Center
         )

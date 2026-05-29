@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
 import com.akira.miokotoba.model.WordBook
 import com.akira.miokotoba.ui.features.wordbook.components.BookCard
+import com.akira.miokotoba.ui.theme.MioDimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,8 +111,8 @@ fun WordBookPage(
     ) {
         // 列表
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 0.dp, vertical = MioDimens.gapMd),
+            verticalArrangement = Arrangement.spacedBy(MioDimens.gapMd),
         ) {
             items(
                 items = filteredList,
@@ -129,7 +130,7 @@ fun WordBookPage(
             onClick = { showSheet = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(vertical = 60.dp, horizontal = 16.dp),
+                .padding(vertical = MioDimens.fabBottomSpace, horizontal = MioDimens.gapLg),
         ) {
             Icon(
                 painterResource(id = R.drawable.ic_add),
@@ -145,8 +146,8 @@ fun WordBookPage(
         ) {
             // Sheet 内容
             Column(
-                modifier = Modifier.padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.padding(MioDimens.gapXxl),
+                verticalArrangement = Arrangement.spacedBy(MioDimens.gapLg)
             ) {
                 Text(
                     text = "新建单词本",
@@ -161,7 +162,7 @@ fun WordBookPage(
                     label = { Text(text = "词本名称") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(MioDimens.radiusLg),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         textAlign = TextAlign.Center
                     )
@@ -173,7 +174,7 @@ fun WordBookPage(
                     label = { Text("词本描述") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(MioDimens.radiusLg),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
                         textAlign = TextAlign.Center
                     )
@@ -181,7 +182,7 @@ fun WordBookPage(
 
                 Button(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(MioDimens.radiusLg),
                     // 空输入检测
                     enabled = name.isNotBlank() && desc.isNotBlank(),
                     onClick = {

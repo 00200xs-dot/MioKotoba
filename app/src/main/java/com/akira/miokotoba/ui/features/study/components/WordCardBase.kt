@@ -20,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.unit.dp
+import com.akira.miokotoba.ui.theme.MioDimens
 
 @Composable
 fun WordCardBase(
@@ -44,15 +44,15 @@ fun WordCardBase(
             // 如果有边框 应用边框参数
             .then(
                 if (borderStroke != null) {
-                    Modifier.border(borderStroke, RoundedCornerShape(45.dp))
+                    Modifier.border(borderStroke, RoundedCornerShape(MioDimens.radiusCard))
                 } else Modifier
             )
-            .shadow(8.dp, RoundedCornerShape(45.dp))
+            .shadow(MioDimens.cardShadow, RoundedCornerShape(MioDimens.radiusCard))
             .fillMaxWidth(0.6f)
             .aspectRatio(0.6f),
         onClick = onClick ?: {},
         enabled = onClick != null,
-        shape = RoundedCornerShape(45.dp),
+        shape = RoundedCornerShape(MioDimens.radiusCard),
         colors = CardDefaults.cardColors(
             containerColor = cardColor
         ),
@@ -80,14 +80,19 @@ private fun BackLayout(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 12.dp, bottom = 12.dp)
+            .padding(top = MioDimens.gapMd, bottom = MioDimens.gapMd)
     ) {
         // 顶部装饰细线
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
-                .clip(RoundedCornerShape(topStart = 45.dp, topEnd = 45.dp))
+                .height(MioDimens.decorLineHeight)
+                .clip(
+                    RoundedCornerShape(
+                        topStart = MioDimens.radiusCard,
+                        topEnd = MioDimens.radiusCard
+                    )
+                )
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
         )
         // 内容
@@ -95,7 +100,7 @@ private fun BackLayout(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
-                .padding(24.dp)
+                .padding(MioDimens.gapXxl)
                 .graphicsLayer { rotationY = contentRotationY },
             contentAlignment = Alignment.Center
         ) {
@@ -105,8 +110,13 @@ private fun BackLayout(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(2.dp)
-                .clip(RoundedCornerShape(bottomStart = 45.dp, bottomEnd = 45.dp))
+                .height(MioDimens.decorLineHeight)
+                .clip(
+                    RoundedCornerShape(
+                        bottomStart = MioDimens.radiusCard,
+                        bottomEnd = MioDimens.radiusCard
+                    )
+                )
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
         )
     }
@@ -121,7 +131,7 @@ private fun FrontLayout(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(MioDimens.gapXxl)
             .graphicsLayer { rotationY = contentRotationY },
         contentAlignment = Alignment.Center
     ) {

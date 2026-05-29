@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.R
 import com.akira.miokotoba.model.Word
@@ -38,6 +37,7 @@ import com.akira.miokotoba.ui.features.study.components.WordCardBase
 import com.akira.miokotoba.ui.features.wordbook.components.WordEntryCard
 import com.akira.miokotoba.ui.modifier.blurIf
 import com.akira.miokotoba.ui.modifier.tiltOnTouch
+import com.akira.miokotoba.ui.theme.MioDimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,7 +115,7 @@ fun WordBookDetailPage(
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
                     contentPadding = innerPadding,
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(MioDimens.gapXs),
                 ) {
                     items(
                         items = words,
@@ -132,7 +132,7 @@ fun WordBookDetailPage(
                     onClick = { showWordAddPage = true },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(vertical = 60.dp, horizontal = 16.dp)
+                        .padding(vertical = MioDimens.fabBottomSpace, horizontal = MioDimens.gapLg)
                 ) {
                     Icon(
                         painterResource(id = R.drawable.ic_add),
@@ -174,19 +174,19 @@ fun WordBookDetailPage(
                                 fontSize = 32.sp
                             )
                             if (word.kanji != null) {
-                                Spacer(modifier = Modifier.padding(8.dp))
+                                Spacer(modifier = Modifier.padding(MioDimens.gapSm))
                                 Text(
                                     text = word.kana, fontSize = 20.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-                            Spacer(modifier = Modifier.padding(12.dp))
+                            Spacer(modifier = Modifier.padding(MioDimens.gapMd))
                             Text(
                                 text = word.romaji,
                                 fontSize = 16.sp,
                                 color = MaterialTheme.colorScheme.primary
                             )
-                            Spacer(modifier = Modifier.padding(12.dp))
+                            Spacer(modifier = Modifier.padding(MioDimens.gapMd))
                             Text(
                                 text = word.meaning,
                                 fontSize = 20.sp,

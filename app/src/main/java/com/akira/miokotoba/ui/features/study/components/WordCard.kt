@@ -21,10 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.animation.AnimationUtils
+import com.akira.miokotoba.ui.theme.MioDimens
 
 @Composable
 fun WordCard(
@@ -57,7 +57,7 @@ fun WordCard(
         frontContent = { Text(word.kana, fontSize = 40.sp) },
         backContent = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(MioDimens.gapSm),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 标题
@@ -65,7 +65,7 @@ fun WordCard(
                     text = word.kanji ?: word.kana,
                     fontSize = 32.sp
                 )
-                Spacer(modifier = Modifier.padding(14.dp))
+                Spacer(modifier = Modifier.padding(MioDimens.gapMd))
                 // 发音 Chip
                 if (word.kanji != null) {
                     InfoChip("読み", word.kana, word.romaji)
@@ -88,12 +88,12 @@ private fun InfoChip(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(4.dp),
-        shape = RoundedCornerShape(12.dp),
+            .padding(MioDimens.gapXs),
+        shape = RoundedCornerShape(MioDimens.radiusMd),
         color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = MioDimens.gapLg, vertical = MioDimens.gapSm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -108,7 +108,7 @@ private fun InfoChip(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                    verticalArrangement = Arrangement.spacedBy(MioDimens.gapXs)
                 ) {
                     Text(
                         text = primary,

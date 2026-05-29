@@ -15,8 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.model.WordBook
+import com.akira.miokotoba.ui.theme.MioDimens
 
 @Composable
 fun BookCard(
@@ -26,30 +26,29 @@ fun BookCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(24.dp),
+            .padding(horizontal = MioDimens.gapLg),
+        shape = RoundedCornerShape(MioDimens.radiusXxl),
         onClick = onClick
     ) {
         Column(
-            modifier = Modifier
-                .padding(20.dp),
+            modifier = Modifier.padding(MioDimens.gapXl),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = wordBook.title,
                 style = MaterialTheme.typography.titleLarge
             )
-            Spacer(modifier = Modifier.padding(3.dp))
+            Spacer(modifier = Modifier.height(MioDimens.gapXs))
             Text(
                 text = wordBook.description,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.padding(3.dp))
+            Spacer(modifier = Modifier.height(MioDimens.gapXs))
             Text(
                 text = "${wordBook.wordCount} 个单词",
                 style = MaterialTheme.typography.bodySmall
             )
-            Spacer(modifier = Modifier.padding(2.dp))
+            Spacer(modifier = Modifier.height(MioDimens.gapXs))
             //进度条
             LinearProgressIndicator(
                 progress = {
@@ -61,7 +60,7 @@ fun BookCard(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp),
+                    .height(MioDimens.gapXs),
                 color = ProgressIndicatorDefaults.linearColor,
                 trackColor = ProgressIndicatorDefaults.linearTrackColor,
                 strokeCap = StrokeCap.Round,

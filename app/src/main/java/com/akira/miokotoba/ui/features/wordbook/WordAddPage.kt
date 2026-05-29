@@ -25,9 +25,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
 import com.akira.miokotoba.model.Word
+import com.akira.miokotoba.ui.theme.MioDimens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,13 +65,13 @@ fun WordAddPage(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(MioDimens.gapXs)
         ) {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp)
+                    .padding(MioDimens.gapLg),
+                shape = RoundedCornerShape(MioDimens.radiusLg)
             ) {
                 // 汉字
                 OutlinedTextField(
@@ -80,9 +80,9 @@ fun WordAddPage(
                     label = { Text("汉字") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
+                        .padding(MioDimens.gapMd),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(MioDimens.radiusLg)
                 )
                 // 假名
                 OutlinedTextField(
@@ -91,9 +91,9 @@ fun WordAddPage(
                     label = { Text("假名读音") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
+                        .padding(MioDimens.gapMd),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(MioDimens.radiusLg)
                 )
                 // 罗马音
                 OutlinedTextField(
@@ -102,9 +102,9 @@ fun WordAddPage(
                     label = { Text("罗马音") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
+                        .padding(MioDimens.gapMd),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(MioDimens.radiusLg)
                 )
                 // 中文释义
                 OutlinedTextField(
@@ -113,16 +113,16 @@ fun WordAddPage(
                     label = { Text("中文释义") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
+                        .padding(MioDimens.gapMd),
                     singleLine = true,
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(MioDimens.radiusLg)
                 )
 
                 Button(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(10.dp),
-                    shape = RoundedCornerShape(16.dp),
+                        .padding(MioDimens.gapMd),
+                    shape = RoundedCornerShape(MioDimens.radiusLg),
                     // 空输入检测
                     enabled = kana.isNotBlank() && meaning.isNotBlank() && romaji.isNotBlank(),
                     onClick = {
