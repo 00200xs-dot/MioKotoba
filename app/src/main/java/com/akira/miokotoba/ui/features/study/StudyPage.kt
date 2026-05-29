@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.animation.AnimationUtils
 import com.akira.miokotoba.ui.features.study.components.WordCard
@@ -49,7 +50,9 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 @Composable
-fun StudyPage() {
+fun StudyPage(
+    words: List<Word> = SampleData.wordsForBook("1")
+) {
     var isCenterFlipped by rememberSaveable { mutableStateOf(false) }
     var reviewedCount by rememberSaveable { mutableIntStateOf(0) }
 
@@ -62,18 +65,8 @@ fun StudyPage() {
     val scale = remember { Animatable(1f) }
     val tiltZ = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
-    // 测试数据
-    val testWords = remember {
-        listOf(
-            Word("1", "あ", "亜", "a", "Asia", false),
-            Word("2", "い", "伊", "i", "Italy", false),
-            Word("3", "う", "宇", "u", "space", false),
-            Word("4", "え", "江", "e", "bay", false),
-            Word("5", "お", "於", "o", "おわり", false),
-        )
-    }
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
-    val currentWord = testWords[currentIndex]
+    val currentWord = words.getOrElse(currentIndex) { words.first() }
 
 
     BoxWithConstraints(
@@ -84,7 +77,7 @@ fun StudyPage() {
         val screenHeight = constraints.maxHeight.toFloat()
 
         LaunchedEffect(currentIndex) {
-            // 退场效果残留状态恢复
+            // 退场效果残留状态恢�?
             scale.snapTo(1f)
             tiltZ.snapTo(0f)
             surfaceAlpha.snapTo(0f)
@@ -193,7 +186,7 @@ fun StudyPage() {
                                                 offsetY, tiltZ, scale, screenHeight,
                                                 onComplete = {
                                                     currentIndex =
-                                                        (currentIndex + 1) % testWords.size
+                                                        (currentIndex + 1) % words.size
                                                     isCenterFlipped = false
                                                     reviewedCount++
                                                 }
@@ -218,7 +211,7 @@ fun StudyPage() {
                                                 offsetY, tiltZ, scale, screenHeight,
                                                 onComplete = {
                                                     currentIndex =
-                                                        (currentIndex + 1) % testWords.size
+                                                        (currentIndex + 1) % words.size
                                                     isCenterFlipped = false
                                                     reviewedCount++
                                                 }
@@ -243,7 +236,7 @@ fun StudyPage() {
                                                 offsetY, tiltZ, scale, screenHeight,
                                                 onComplete = {
                                                     currentIndex =
-                                                        (currentIndex + 1) % testWords.size
+                                                        (currentIndex + 1) % words.size
                                                     isCenterFlipped = false
                                                     reviewedCount++
                                                 }
@@ -268,7 +261,7 @@ fun StudyPage() {
                                                 offsetY, tiltZ, scale, screenHeight,
                                                 onComplete = {
                                                     currentIndex =
-                                                        (currentIndex + 1) % testWords.size
+                                                        (currentIndex + 1) % words.size
                                                     isCenterFlipped = false
                                                     reviewedCount++
                                                 }
@@ -285,7 +278,7 @@ fun StudyPage() {
     }
 }
 
-// 退场效果
+// 退场效�?
 private suspend fun exitCard(
     offsetY: Animatable<Float, *>,
     tiltZ: Animatable<Float, *>,

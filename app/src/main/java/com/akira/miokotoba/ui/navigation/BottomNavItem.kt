@@ -2,12 +2,12 @@ package com.akira.miokotoba.ui.navigation
 
 import com.akira.miokotoba.R
 
+/** 底部导航栏项目，不再持有 route（路由统一由 Screen 管理） */
 enum class BottomNavItem(
-    val route: String,   //不启用 预留
     val label: String,
     val iconRes: Int
 ) {
-    WordBook("Library", "单词本", R.drawable.ic_nav_library_book),
-    Study("Study", "记忆", R.drawable.ic_nav_study_playarrow),
-    Settings("Settings", "设置", R.drawable.ic_nav_settings_settings)
+    WordBook("单词本", R.drawable.ic_nav_library_book),
+    Study("记忆", R.drawable.ic_nav_study_playarrow),
+    Settings("设置", R.drawable.ic_nav_settings_settings)
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
+import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.WordBook
 import com.akira.miokotoba.ui.features.wordbook.components.BookCard
 import com.akira.miokotoba.ui.theme.MioDimens
@@ -41,55 +42,7 @@ fun WordBookPage(
     onBookClick: (WordBook) -> Unit
 ) {
     // 单词本列表
-    var wordBookList by remember {
-        mutableStateOf(
-            listOf(
-                // 测试数据
-                WordBook(
-                    id = "1",
-                    title = "N5 核心词汇",
-                    description = "日语能力考 N5 必备单词",
-                    wordCount = 120,
-                    learnedCount = 45
-                ),
-                WordBook(
-                    id = "2",
-                    title = "N5 核心词汇",
-                    description = "日语能力考 N5 必备单词",
-                    wordCount = 120,
-                    learnedCount = 45
-                ),
-                WordBook(
-                    id = "3",
-                    title = "N5 核心词汇",
-                    description = "日语能力考 N5 必备单词",
-                    wordCount = 120,
-                    learnedCount = 45
-                ),
-                WordBook(
-                    id = "4",
-                    title = "N5 核心词汇",
-                    description = "日语能力考 N5 必备单词",
-                    wordCount = 120,
-                    learnedCount = 45
-                ),
-                WordBook(
-                    id = "5",
-                    title = "N5 核心词汇",
-                    description = "日语能力考 N5 必备单词",
-                    wordCount = 120,
-                    learnedCount = 45
-                ),
-                WordBook(
-                    id = "6",
-                    title = "日常会话表达",
-                    description = "日常生活常用口语",
-                    wordCount = 80,
-                    learnedCount = 20
-                )
-            )
-        )
-    }
+    var wordBookList by remember { mutableStateOf(SampleData.books) }
     // 筛选后的列表
     val filteredList = wordBookList.filter { wordBook ->
         wordBook.title.contains(searchQuery, ignoreCase = true) ||

@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.R
+import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.model.WordBook
 import com.akira.miokotoba.ui.features.study.components.WordCardBase
@@ -46,23 +47,7 @@ fun WordBookDetailPage(
     onBack: () -> Unit
 ) {
     // 测试数据
-    var words by remember {
-        mutableStateOf(
-            listOf(
-                Word("1", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("2", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("3", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("4", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("5", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("6", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("7", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("8", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("9", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("10", "食べる", "たべる", "taberu", "吃", mastered = false),
-                Word("11", "飲む", "のむ", "nomu", "喝", mastered = true)
-            )
-        )
-    }
+    var words by remember { mutableStateOf(SampleData.wordsForBook(wordBook.id)) }
 
     // 显示新增单词页面
     var showWordAddPage by remember { mutableStateOf(false) }
