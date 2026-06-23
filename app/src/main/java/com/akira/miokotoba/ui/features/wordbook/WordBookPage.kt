@@ -18,19 +18,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
-import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.WordBook
 import com.akira.miokotoba.ui.features.wordbook.components.BookCard
 import com.akira.miokotoba.ui.theme.MioDimens
@@ -38,26 +32,14 @@ import com.akira.miokotoba.ui.theme.MioDimens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordBookPage(
-    searchQuery: String,
-    onBookClick: (WordBook) -> Unit
+    uiState: WordBookUiState,
+    onBookClick: (WordBook) -> Unit,
+    onAddBookClick: () -> Unit,
+    onDismissAddSheet: () -> Unit,
+    onNewBookTitleChange: (String) -> Unit,
+    onNewBookDescriptionChange: (String) -> Unit,
+    onCreateBook: () -> Unit
 ) {
-    // 单词本列表
-    var wordBookList by remember { mutableStateOf(SampleData.books) }
-    // 筛选后的列表
-    val filteredList = wordBookList.filter { wordBook ->
-        wordBook.title.contains(searchQuery, ignoreCase = true) ||
-                wordBook.description.contains(searchQuery, ignoreCase = true)
-    }
-    // 添加词本 Sheet 页面状态
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true // 跳过半展开直接全屏
-    )
-    var showSheet by remember { mutableStateOf(false) }
-    // 词本名称
-    var name by remember { mutableStateOf("") }
-    // 词本描述
-    var desc by remember { mutableStateOf("") }
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -68,7 +50,7 @@ fun WordBookPage(
             verticalArrangement = Arrangement.spacedBy(MioDimens.gapMd),
         ) {
             items(
-                items = filteredList,
+                items = uiState.filteredBooks,
                 key = { it.id }
             ) { wordBook ->
                 BookCard(
@@ -80,7 +62,7 @@ fun WordBookPage(
         }
         // FAB
         FloatingActionButton(
-            onClick = { showSheet = true },
+            onClick = onAddBookClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(vertical = MioDimens.fabBottomSpace, horizontal = MioDimens.gapLg),
@@ -92,10 +74,9 @@ fun WordBookPage(
         }
     }
     // 添加新词本 Sheet
-    if (showSheet) {
+    if (uiState.showAddSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showSheet = false }, // 下拉关闭 Sheet
-            sheetState = sheetState,
+            onDismissRequest = onDismissAddSheet, // 下拉关闭 Sheet
         ) {
             // Sheet 内容
             Column(
@@ -110,8 +91,8 @@ fun WordBookPage(
                 )
                 // 词本名称输入框
                 OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
+                    value = uiState.newBookTitle,
+                    onValueChange = onNewBookTitleChange,
                     label = { Text(text = "词本名称") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -122,8 +103,8 @@ fun WordBookPage(
                 )
                 // 词本描述输入框
                 OutlinedTextField(
-                    value = desc,
-                    onValueChange = { desc = it },
+                    value = uiState.newBookDescription,
+                    onValueChange = onNewBookDescriptionChange,
                     label = { Text("词本描述") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -137,18 +118,8 @@ fun WordBookPage(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(MioDimens.radiusLg),
                     // 空输入检测
-                    enabled = name.isNotBlank() && desc.isNotBlank(),
-                    onClick = {
-                        val newBook = WordBook(
-                            id = java.util.UUID.randomUUID().toString(),    // 生成全局唯一TD
-                            title = name,
-                            description = desc,
-                            wordCount = 0,
-                            learnedCount = 0,
-                        )
-                        wordBookList = wordBookList + newBook   // 创建新列表
-                        showSheet = false   //关闭 Sheet
-                    }
+                    enabled = uiState.newBookTitle.isNotBlank() && uiState.newBookDescription.isNotBlank(),
+                    onClick = onCreateBook
                 ) {
                     Text("确认")
                 }

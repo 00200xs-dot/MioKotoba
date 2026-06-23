@@ -17,12 +17,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.akira.miokotoba.ui.components.PlaceholderPage
 import com.akira.miokotoba.ui.components.navigation.MioNavigationBar
 import com.akira.miokotoba.ui.components.topbar.MioTopBar
 import com.akira.miokotoba.ui.components.topbar.TopBarMode
+import com.akira.miokotoba.ui.features.study.StudyStartPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookPage
+import com.akira.miokotoba.ui.features.wordbook.WordBookViewModel
 import com.akira.miokotoba.ui.navigation.BottomNavItem
 import com.akira.miokotoba.ui.navigation.Screen
 
@@ -33,8 +36,10 @@ import com.akira.miokotoba.ui.navigation.Screen
 @Composable
 fun MainTabsScreen(navController: NavController) {
     var selectedTab by rememberSaveable { mutableStateOf(BottomNavItem.Study) }
-    var searchQuery by rememberSaveable { mutableStateOf("") }
     var topBarMode by remember { mutableStateOf<TopBarMode>(TopBarMode.Focus) }
+
+    val wordBookViewModel: WordBookViewModel = viewModel()
+    val wordBookUiState = wordBookViewModel.uiState
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars
@@ -46,8 +51,9 @@ fun MainTabsScreen(navController: NavController) {
                 selectedItem = selectedTab,
                 onScreenSelected = { tab ->
                     if (selectedTab != tab) {
-                        searchQuery = ""
-                        topBarMode = if (tab == BottomNavItem.Study) TopBarMode.Focus else TopBarMode.Default
+                        wordBookViewModel.onSearchQueryChange("")
+                        topBarMode =
+                            if (tab == BottomNavItem.Study) TopBarMode.Focus else TopBarMode.Default
                     }
                     selectedTab = tab
                 }
@@ -58,8 +64,8 @@ fun MainTabsScreen(navController: NavController) {
                 mode = topBarMode,
                 onModeChange = { topBarMode = it },
                 title = selectedTab.label,
-                searchQuery = searchQuery,
-                onQueryChange = { searchQuery = it }
+                searchQuery = wordBookUiState.searchQuery,
+                onQueryChange = wordBookViewModel::onSearchQueryChange
             )
         }
     ) { innerPadding ->
@@ -71,12 +77,21 @@ fun MainTabsScreen(navController: NavController) {
         ) {
             when (selectedTab) {
                 BottomNavItem.WordBook -> WordBookPage(
-                    searchQuery = searchQuery,
+                    uiState = wordBookUiState,
                     onBookClick = { book ->
                         navController.navigate(Screen.WordBookDetail.createRoute(book.id))
-                    }
+                    },
+                    onAddBookClick = wordBookViewModel::onAddBookClick,
+                    onDismissAddSheet = wordBookViewModel::onDismissAddSheet,
+                    onNewBookTitleChange = wordBookViewModel::onNewBookTitleChange,
+                    onNewBookDescriptionChange = wordBookViewModel::onNewBookDescriptionChange,
+                    onCreateBook = wordBookViewModel::onCreateBook
                 )
-                BottomNavItem.Study -> PlaceholderPage("学习入口")
+
+                BottomNavItem.Study -> StudyStartPage(
+                    navController = navController
+                )
+
                 BottomNavItem.Settings -> PlaceholderPage("设置")
             }
         }

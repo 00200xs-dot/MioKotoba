@@ -60,4 +60,8 @@ dependencies {
 
     //Google Material Icons
     implementation("androidx.compose.material:material-icons-extended")
+    // M3 Shape
+    implementation("androidx.graphics:graphics-shapes:1.0.1")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
 }

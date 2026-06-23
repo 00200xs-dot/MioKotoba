@@ -1,6 +1,5 @@
 package com.akira.miokotoba.ui.features.wordbook
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -21,19 +20,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.R
-import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.Word
-import com.akira.miokotoba.model.WordBook
 import com.akira.miokotoba.ui.features.study.components.WordCardBase
 import com.akira.miokotoba.ui.features.wordbook.components.WordEntryCard
 import com.akira.miokotoba.ui.modifier.blurIf
@@ -43,29 +37,20 @@ import com.akira.miokotoba.ui.theme.MioDimens
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordBookDetailPage(
-    wordBook: WordBook,
+    uiState: WordBookDetailUiState,
+    onAddWordClick: () -> Unit,
+    onDismissAddWordPage: () -> Unit,
+    onWordAdded: (Word) -> Unit,
+    onWordClick: (Word) -> Unit,
+    onDismissWordDetail: () -> Unit,
     onBack: () -> Unit
 ) {
-    // 测试数据
-    var words by remember { mutableStateOf(SampleData.wordsForBook(wordBook.id)) }
+    val wordBook = uiState.wordBook ?: return
 
-    // 显示新增单词页面
-    var showWordAddPage by remember { mutableStateOf(false) }
-    // 被选中单词
-    var selectedWord by remember { mutableStateOf<Word?>(null) }
-
-    // 拦截系统返回键
-    BackHandler(enabled = showWordAddPage) {
-        showWordAddPage = false
-    }
-
-    if (showWordAddPage) {
+    if (uiState.showWordAddPage) {
         WordAddPage(
-            onBack = { showWordAddPage = false },
-            onWordAdded = { newWord ->
-                words = words + newWord
-                showWordAddPage = false
-            }
+            onBack = onDismissAddWordPage,
+            onWordAdded = onWordAdded
         )
 
         return
@@ -75,70 +60,74 @@ fun WordBookDetailPage(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .blurIf(selectedWord != null)
+                .blurIf(uiState.selectedWord != null)
         ) {
             Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = wordBook.title,
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = onBack) {
-                            Icon(
-                                painterResource(id = R.drawable.ic_arrow_back),
-                                contentDescription = "返回"
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = wordBook.title,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    painterResource(R.drawable.ic_arrow_back),
+                                    contentDescription = "返回"
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                Box(modifier = Modifier.fillMaxSize()) {
+                    LazyColumn(
+                        contentPadding = innerPadding,
+                        verticalArrangement = Arrangement.spacedBy(MioDimens.gapXs),
+                    ) {
+                        items(
+                            items = uiState.words,
+                            key = { it.id }
+                        ) { word ->
+                            WordEntryCard(
+                                word = word,
+                                onClick = { onWordClick(word) }
                             )
                         }
                     }
-                )
-            }
-        ) { innerPadding ->
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(
-                    contentPadding = innerPadding,
-                    verticalArrangement = Arrangement.spacedBy(MioDimens.gapXs),
-                ) {
-                    items(
-                        items = words,
-                        key = { it.id }
-                    ) { word ->
-                        WordEntryCard(
-                            word = word,
-                            onClick = { selectedWord = word }
+                    // 添加新单词 FAB
+                    FloatingActionButton(
+                        onClick = onAddWordClick,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(
+                                vertical = MioDimens.fabBottomSpace,
+                                horizontal = MioDimens.gapLg
+                            )
+                    ) {
+                        Icon(
+                            painterResource(R.drawable.ic_add),
+                            contentDescription = "添加新单词"
                         )
                     }
                 }
-                // 添加新单词 FAB
-                FloatingActionButton(
-                    onClick = { showWordAddPage = true },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(vertical = MioDimens.fabBottomSpace, horizontal = MioDimens.gapLg)
-                ) {
-                    Icon(
-                        painterResource(id = R.drawable.ic_add),
-                        contentDescription = "添加新单词"
-                    )
-                }
             }
-        }
 
         }
         // 单词详情卡片
-        if (selectedWord != null) {
+        if (uiState.selectedWord != null) {
             // 暗色遮罩
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.3f))
                     .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { selectedWord = null }
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onDismissWordDetail
+                    )
             )
 
             // 放大卡片
@@ -153,7 +142,7 @@ fun WordBookDetailPage(
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        selectedWord?.let { word ->
+                        uiState.selectedWord.let { word ->
                             Text(
                                 text = word.kanji ?: word.kana,
                                 fontSize = 32.sp

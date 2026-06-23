@@ -5,14 +5,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.akira.miokotoba.AppContainer
 import com.akira.miokotoba.ui.components.PlaceholderPage
-import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.ui.features.study.StudyPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookDetailPage
+import com.akira.miokotoba.ui.features.wordbook.WordBookDetailViewModel
 import com.akira.miokotoba.ui.navigation.Screen
 import com.akira.miokotoba.ui.navigation.parallaxEnterFromLeft
 import com.akira.miokotoba.ui.navigation.parallaxExitToLeft
@@ -26,6 +29,10 @@ import com.akira.miokotoba.ui.navigation.slideOutToRight
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
+    val wordBookRepository = AppContainer.wordBookRepository
+
+    val wordBookDetailViewModel: WordBookDetailViewModel = viewModel()
+    val wordBookDetailUiState = wordBookDetailViewModel.uiState
 
     Box(modifier = Modifier.fillMaxSize()) {
         NavHost(
@@ -44,22 +51,22 @@ fun MainScreen() {
             }
             composable(Screen.WordBookDetail.route) { backStackEntry ->
                 val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
-                val book = SampleData.bookById(bookId) ?: return@composable
+                LaunchedEffect(bookId) {
+                    wordBookDetailViewModel.loadBook(bookId)
+                }
                 WordBookDetailPage(
-                    wordBook = book,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-            composable(Screen.WordAdd.route) { backStackEntry ->
-                val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
-                WordBookDetailPage(
-                    wordBook = SampleData.bookById(bookId) ?: return@composable,
+                    uiState = wordBookDetailUiState,
+                    onAddWordClick = wordBookDetailViewModel::onAddWordClick,
+                    onDismissAddWordPage = wordBookDetailViewModel::onDismissAddWordPage,
+                    onWordAdded = wordBookDetailViewModel::onWordAdded,
+                    onWordClick = wordBookDetailViewModel::onWordClick,
+                    onDismissWordDetail = wordBookDetailViewModel::onDismissWordDetail,
                     onBack = { navController.popBackStack() }
                 )
             }
             composable(Screen.StudySession.route) { backStackEntry ->
                 val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
-                StudyPage(words = SampleData.wordsForBook(bookId))
+                StudyPage(words = wordBookRepository.getWords(bookId))
             }
             composable(Screen.KanaChart.route) {
                 PlaceholderPage("五十音图")

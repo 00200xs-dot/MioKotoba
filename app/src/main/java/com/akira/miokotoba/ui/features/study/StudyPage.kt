@@ -11,14 +11,20 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -35,9 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.akira.miokotoba.R
 import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.animation.AnimationUtils
@@ -53,6 +61,11 @@ import kotlin.random.Random
 fun StudyPage(
     words: List<Word> = SampleData.wordsForBook("1")
 ) {
+    if (words.isEmpty()) {
+        EmptyStudyContent()
+        return
+    }
+
     var isCenterFlipped by rememberSaveable { mutableStateOf(false) }
     var reviewedCount by rememberSaveable { mutableIntStateOf(0) }
 
@@ -66,7 +79,7 @@ fun StudyPage(
     val tiltZ = remember { Animatable(0f) }
     val scope = rememberCoroutineScope()
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
-    val currentWord = words.getOrElse(currentIndex) { words.first() }
+    val currentWord = words[currentIndex.coerceIn(words.indices)]
 
 
     BoxWithConstraints(
@@ -77,7 +90,7 @@ fun StudyPage(
         val screenHeight = constraints.maxHeight.toFloat()
 
         LaunchedEffect(currentIndex) {
-            // 退场效果残留状态恢�?
+            // 退场效果残留状态恢复
             scale.snapTo(1f)
             tiltZ.snapTo(0f)
             surfaceAlpha.snapTo(0f)
@@ -148,7 +161,9 @@ fun StudyPage(
                 color = MaterialTheme.colorScheme.surfaceContainerLow,
             ) {
                 Box(
-                    modifier = Modifier.height(48.dp),
+                    modifier = Modifier
+                        .padding(MioDimens.gapSm)
+                        .heightIn(min = 52.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     AnimatedContent(
@@ -168,9 +183,13 @@ fun StudyPage(
                         if (!visible) {
                             Text("")
                         } else {
-                            Row(horizontalArrangement = Arrangement.spacedBy(MioDimens.gapSm)) {
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(MioDimens.gapSm),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
                                 RatingChip(
                                     label = "不认识",
+                                    iconRes = R.drawable.ic_level_not_know,
                                     onClick = {
                                         scope.launch {
                                             showRatingButtons = false
@@ -194,58 +213,70 @@ fun StudyPage(
                                         }
                                     }
                                 )
-                                RatingChip(
-                                    label = "模糊",
-                                    onClick = {
-                                        scope.launch {
-                                            showRatingButtons = false
-                                            launch {
-                                                surfaceAlpha.animateTo(
-                                                    0f,
-                                                    tween(AnimationUtils.DURATION_SHORT)
+
+                                Column(
+                                    modifier = Modifier,
+                                    verticalArrangement = Arrangement.spacedBy(MioDimens.gapXs)
+                                ) {
+                                    RatingChip(
+                                        label = "模糊",
+                                        iconRes = R.drawable.ic_level_blurry,
+                                        onClick = {
+                                            scope.launch {
+                                                showRatingButtons = false
+                                                launch {
+                                                    surfaceAlpha.animateTo(
+                                                        0f,
+                                                        tween(AnimationUtils.DURATION_SHORT)
+                                                    )
+                                                }
+                                                launch { surfaceWidth.animateTo(48f, spring()) }
+                                                launch { ratingButtonY.animateTo(300f, spring()) }
+                                                exitCard(
+                                                    offsetY, tiltZ, scale, screenHeight,
+                                                    onComplete = {
+                                                        currentIndex =
+                                                            (currentIndex + 1) % words.size
+                                                        isCenterFlipped = false
+                                                        reviewedCount++
+                                                    }
                                                 )
                                             }
-                                            launch { surfaceWidth.animateTo(48f, spring()) }
-                                            launch { ratingButtonY.animateTo(300f, spring()) }
-                                            exitCard(
-                                                offsetY, tiltZ, scale, screenHeight,
-                                                onComplete = {
-                                                    currentIndex =
-                                                        (currentIndex + 1) % words.size
-                                                    isCenterFlipped = false
-                                                    reviewedCount++
-                                                }
-                                            )
                                         }
-                                    }
-                                )
+                                    )
+
+                                    RatingChip(
+                                        label = "简单",
+                                        iconRes = R.drawable.ic_level_easy,
+                                        onClick = {
+                                            scope.launch {
+                                                showRatingButtons = false
+                                                launch {
+                                                    surfaceAlpha.animateTo(
+                                                        0f,
+                                                        tween(AnimationUtils.DURATION_SHORT)
+                                                    )
+                                                }
+                                                launch { surfaceWidth.animateTo(48f, spring()) }
+                                                launch { ratingButtonY.animateTo(300f, spring()) }
+                                                exitCard(
+                                                    offsetY, tiltZ, scale, screenHeight,
+                                                    onComplete = {
+                                                        currentIndex =
+                                                            (currentIndex + 1) % words.size
+                                                        isCenterFlipped = false
+                                                        reviewedCount++
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    )
+
+                                }
+
                                 RatingChip(
                                     label = "认识",
-                                    onClick = {
-                                        scope.launch {
-                                            showRatingButtons = false
-                                            launch {
-                                                surfaceAlpha.animateTo(
-                                                    0f,
-                                                    tween(AnimationUtils.DURATION_SHORT)
-                                                )
-                                            }
-                                            launch { surfaceWidth.animateTo(48f, spring()) }
-                                            launch { ratingButtonY.animateTo(300f, spring()) }
-                                            exitCard(
-                                                offsetY, tiltZ, scale, screenHeight,
-                                                onComplete = {
-                                                    currentIndex =
-                                                        (currentIndex + 1) % words.size
-                                                    isCenterFlipped = false
-                                                    reviewedCount++
-                                                }
-                                            )
-                                        }
-                                    }
-                                )
-                                RatingChip(
-                                    label = "简单",
+                                    iconRes = R.drawable.ic_level_know,
                                     onClick = {
                                         scope.launch {
                                             showRatingButtons = false
@@ -278,7 +309,24 @@ fun StudyPage(
     }
 }
 
-// 退场效�?
+@Composable
+private fun EmptyStudyContent() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(MioDimens.gapXxl),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "这个词书还没有单词",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+// 退场效果
 private suspend fun exitCard(
     offsetY: Animatable<Float, *>,
     tiltZ: Animatable<Float, *>,
@@ -299,20 +347,30 @@ private suspend fun exitCard(
 @Composable
 private fun RatingChip(
     label: String,
+    iconRes: Int,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier.widthIn(min = 72.dp),
+        modifier = modifier
+            .widthIn(min = 88.dp)
+            .height(52.dp),
         onClick = onClick,
         shape = RoundedCornerShape(MioDimens.radiusPill),
-        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        shadowElevation = 2.dp
     ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = MioDimens.gapMd, vertical = MioDimens.gapMd),
-            style = MaterialTheme.typography.labelLarge,
-            textAlign = TextAlign.Center
-        )
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = label,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(label, style = MaterialTheme.typography.labelLarge)
+        }
     }
 }
