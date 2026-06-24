@@ -66,7 +66,10 @@ fun MainScreen() {
             }
             composable(Screen.StudySession.route) { backStackEntry ->
                 val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
-                StudyPage(words = wordBookRepository.getWords(bookId))
+                StudyPage(
+                    words = wordBookRepository.getWords(bookId),
+                    onBack = { navController.popBackStack() }
+                )
             }
             composable(Screen.KanaChart.route) {
                 PlaceholderPage("五十音图")

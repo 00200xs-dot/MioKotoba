@@ -25,23 +25,17 @@ import com.akira.miokotoba.ui.theme.MioDimens
 @Composable
 fun WordCardBase(
     modifier: Modifier = Modifier,
-    // 正反面显示
     isShowingBack: Boolean = false,
-    // 边框参数
     borderStroke: BorderStroke? = null,
     onClick: (() -> Unit)? = null,
-    // 内容反翻转角度（卡片翻转时文字保持正向）
     contentRotationY: Float = 0f,
-    // 正面内容
     frontContent: @Composable () -> Unit,
-    // 背面内容
     backContent: @Composable () -> Unit
 ) {
     val cardColor = MaterialTheme.colorScheme.surfaceContainerHigh
 
     Card(
         modifier = modifier
-            // 如果有边框 应用边框参数
             .then(
                 if (borderStroke != null) {
                     Modifier.border(borderStroke, RoundedCornerShape(MioDimens.radiusCard))
@@ -71,7 +65,6 @@ fun WordCardBase(
     }
 }
 
-// 卡片背面
 @Composable
 private fun BackLayout(
     contentRotationY: Float = 0f,
@@ -82,7 +75,6 @@ private fun BackLayout(
             .fillMaxSize()
             .padding(top = MioDimens.gapMd, bottom = MioDimens.gapMd)
     ) {
-        // 顶部装饰细线
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -95,7 +87,6 @@ private fun BackLayout(
                 )
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
         )
-        // 内容
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -106,7 +97,6 @@ private fun BackLayout(
         ) {
             content()
         }
-        // 底部装饰细线
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -122,7 +112,6 @@ private fun BackLayout(
     }
 }
 
-// 卡片正面
 @Composable
 private fun FrontLayout(
     contentRotationY: Float = 0f,

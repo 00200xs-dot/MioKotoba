@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.animation.AnimationUtils
@@ -30,9 +27,7 @@ import com.akira.miokotoba.ui.theme.MioDimens
 fun WordCard(
     modifier: Modifier = Modifier,
     word: Word,
-    //外部定义点击逻辑
     onCardClick: (() -> Unit)? = null,
-    //外部控制翻转状态
     isFlipped: Boolean = false
 ) {
     val rotation by animateFloatAsState(
@@ -60,19 +55,16 @@ fun WordCard(
                 verticalArrangement = Arrangement.spacedBy(MioDimens.gapSm),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 标题
                 Text(
                     text = word.kanji ?: word.kana,
                     fontSize = 32.sp
                 )
                 Spacer(modifier = Modifier.padding(MioDimens.gapMd))
-                // 发音 Chip
                 if (word.kanji != null) {
                     InfoChip("読み", word.kana, word.romaji)
                 } else {
                     InfoChip("Roman", word.romaji)
                 }
-                // 释义 Chip
                 InfoChip("意味", word.meaning)
             }
         }
