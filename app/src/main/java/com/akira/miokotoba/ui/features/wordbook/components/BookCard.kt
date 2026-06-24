@@ -6,49 +6,46 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import com.akira.miokotoba.model.WordBook
-import com.akira.miokotoba.ui.theme.MioDimens
+import com.akira.miokotoba.ui.components.MioSurfaceCard
+import com.akira.miokotoba.ui.design.MioSpacing
 
 @Composable
 fun BookCard(
     wordBook: WordBook,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = Modifier
+    MioSurfaceCard(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = MioDimens.gapLg),
-        shape = RoundedCornerShape(MioDimens.radiusXxl),
+            .padding(horizontal = MioSpacing.lg),
         onClick = onClick
     ) {
         Column(
-            modifier = Modifier.padding(MioDimens.gapXl),
             verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = wordBook.title,
                 style = MaterialTheme.typography.titleLarge
             )
-            Spacer(modifier = Modifier.height(MioDimens.gapXs))
+            Spacer(modifier = Modifier.height(MioSpacing.xs))
             Text(
                 text = wordBook.description,
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(modifier = Modifier.height(MioDimens.gapXs))
+            Spacer(modifier = Modifier.height(MioSpacing.xs))
             Text(
                 text = "${wordBook.wordCount} 个单词",
                 style = MaterialTheme.typography.bodySmall
             )
-            Spacer(modifier = Modifier.height(MioDimens.gapXs))
+            Spacer(modifier = Modifier.height(MioSpacing.xs))
             //进度条
             LinearProgressIndicator(
                 progress = {
@@ -60,9 +57,9 @@ fun BookCard(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(MioDimens.gapXs),
-                color = ProgressIndicatorDefaults.linearColor,
-                trackColor = ProgressIndicatorDefaults.linearTrackColor,
+                    .height(MioSpacing.xs),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 strokeCap = StrokeCap.Round,
             )
         }

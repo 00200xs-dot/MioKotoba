@@ -9,6 +9,8 @@ object MioMotion {
     const val Quick = 150
     const val Standard = 240
     const val Emphasized = 320
+    const val StudyCardEnter = 320
+    const val StudyCardExit = 380
 
     val StandardEasing = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
     val ExitEasing = CubicBezierEasing(0.4f, 0.0f, 1.0f, 1.0f)
@@ -17,6 +19,8 @@ object MioMotion {
     fun <T> standardTween() = tween<T>(durationMillis = Standard, easing = StandardEasing)
     fun <T> emphasizedTween() = tween<T>(durationMillis = Emphasized, easing = StandardEasing)
     fun <T> exitTween() = tween<T>(durationMillis = Quick, easing = ExitEasing)
+    fun <T> studyCardEnterTween() = tween<T>(durationMillis = StudyCardEnter, easing = StandardEasing)
+    fun <T> studyCardExitTween() = tween<T>(durationMillis = StudyCardExit, easing = StandardEasing)
 
     fun gentleSpring() = spring<Float>(
         dampingRatio = Spring.DampingRatioNoBouncy,

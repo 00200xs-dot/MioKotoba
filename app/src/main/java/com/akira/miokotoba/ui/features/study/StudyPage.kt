@@ -53,9 +53,10 @@ import com.akira.miokotoba.R
 import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.animation.MioMotion
+import com.akira.miokotoba.ui.design.MioRadius
+import com.akira.miokotoba.ui.design.MioSpacing
 import com.akira.miokotoba.ui.features.study.components.WordCard
 import com.akira.miokotoba.ui.modifier.tiltOnTouch
-import com.akira.miokotoba.ui.theme.MioDimens
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.pow
@@ -75,6 +76,7 @@ fun StudyPage(
     var isFlipped by rememberSaveable { mutableStateOf(false) }
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
     var reviewedCount by rememberSaveable { mutableIntStateOf(0) }
+    var isCardMoving by remember { mutableStateOf(false) }
     val currentWord = words[currentIndex.coerceIn(words.indices)]
 
     val offsetY = remember { androidx.compose.animation.core.Animatable(0f) }
@@ -85,15 +87,17 @@ fun StudyPage(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = MioDimens.gapLg)
+            .padding(horizontal = MioSpacing.lg)
     ) {
         val screenHeight = constraints.maxHeight.toFloat()
 
         LaunchedEffect(currentIndex) {
+            isCardMoving = true
             scale.snapTo(1f)
             tiltZ.snapTo(0f)
             offsetY.snapTo(-screenHeight)
-            offsetY.animateTo(0f, MioMotion.expressiveSpring())
+            offsetY.animateTo(0f, MioMotion.studyCardEnterTween())
+            isCardMoving = false
         }
 
         Box(modifier = Modifier.fillMaxSize()) {
@@ -118,7 +122,11 @@ fun StudyPage(
                         .graphicsLayer { rotationZ = tiltZ.value },
                     word = currentWord,
                     isFlipped = isFlipped,
-                    onCardClick = { isFlipped = !isFlipped }
+                    onCardClick = {
+                        if (!isFlipped && !isCardMoving) {
+                            isFlipped = true
+                        }
+                    }
                 )
             }
 
@@ -126,7 +134,10 @@ fun StudyPage(
                 visible = isFlipped,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 onRate = {
+                    if (isCardMoving) return@RatingBar
+
                     scope.launch {
+                        isCardMoving = true
                         isFlipped = false
                         exitCard(
                             offsetY = offsetY,
@@ -158,8 +169,8 @@ private fun StudySessionHeader(
         modifier = modifier
             .fillMaxWidth()
             .windowInsetsPadding(WindowInsets.statusBars)
-            .padding(top = MioDimens.gapMd),
-        verticalArrangement = Arrangement.spacedBy(MioDimens.gapSm)
+            .padding(top = MioSpacing.md),
+        verticalArrangement = Arrangement.spacedBy(MioSpacing.sm)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -215,16 +226,16 @@ private fun RatingBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .navigationBarsPadding()
-                .padding(bottom = MioDimens.gapLg),
-            shape = RoundedCornerShape(MioDimens.radiusXl),
+                .padding(bottom = MioSpacing.lg),
+            shape = RoundedCornerShape(MioRadius.lg),
             color = MaterialTheme.colorScheme.surfaceContainerHigh,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
             tonalElevation = 4.dp,
             shadowElevation = 8.dp
         ) {
             Row(
-                modifier = Modifier.padding(MioDimens.gapSm),
-                horizontalArrangement = Arrangement.spacedBy(MioDimens.gapSm),
+                modifier = Modifier.padding(MioSpacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(MioSpacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReviewLevel.entries.forEach { level ->
@@ -248,13 +259,13 @@ private fun RatingChip(
     Surface(
         modifier = modifier.height(62.dp),
         onClick = onClick,
-        shape = RoundedCornerShape(MioDimens.radiusLg),
+        shape = RoundedCornerShape(MioRadius.md),
         color = level.containerColor(),
         contentColor = level.contentColor(),
         border = BorderStroke(1.dp, level.contentColor().copy(alpha = 0.16f))
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = MioDimens.gapXs),
+            modifier = Modifier.padding(horizontal = MioSpacing.xs),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
@@ -277,7 +288,7 @@ private fun EmptyStudyContent() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(MioDimens.gapXxl),
+            .padding(MioSpacing.xxl),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -298,9 +309,9 @@ private suspend fun exitCard(
 ) {
     val randomAngle = Random.nextFloat() * 6f - 3f
     coroutineScope {
-        launch { offsetY.animateTo(targetY, MioMotion.standardTween()) }
-        launch { tiltZ.animateTo(randomAngle, MioMotion.standardTween()) }
-        launch { scale.animateTo(0.8f, MioMotion.standardTween()) }
+        launch { offsetY.animateTo(targetY, MioMotion.studyCardExitTween()) }
+        launch { tiltZ.animateTo(randomAngle, MioMotion.studyCardExitTween()) }
+        launch { scale.animateTo(0.8f, MioMotion.studyCardExitTween()) }
     }
     onComplete()
 }

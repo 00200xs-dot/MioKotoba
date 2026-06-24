@@ -24,7 +24,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.R
-import com.akira.miokotoba.ui.theme.MioDimens
+import com.akira.miokotoba.ui.design.MioRadius
+import com.akira.miokotoba.ui.design.MioSize
+import com.akira.miokotoba.ui.design.MioSpacing
 
 @Composable
 fun MioTopBar(
@@ -54,8 +56,8 @@ private fun DefaultTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .heightIn(min = MioDimens.topBarMinHeight)
-                .padding(horizontal = MioDimens.topBarHorizontal, vertical = MioDimens.topBarVertical),
+                .heightIn(min = MioSize.topBarMinHeight)
+                .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
             contentAlignment = Alignment.Center,
         ) {
             Text(
@@ -69,10 +71,10 @@ private fun DefaultTopBar(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .fillMaxWidth(0.2f)
-                    .height(MioDimens.searchPillHeight),
+                    .height(MioSize.actionPillHeight),
                 //.clickable {  },
                 onClick = { onModeChange(TopBarMode.Search) },
-                shape = RoundedCornerShape(MioDimens.radiusPill),
+                shape = RoundedCornerShape(MioRadius.pill),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -100,20 +102,20 @@ private fun SearchTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .heightIn(min = MioDimens.topBarMinHeight)
-                .padding(horizontal = MioDimens.topBarHorizontal, vertical = MioDimens.topBarVertical),
+                .heightIn(min = MioSize.topBarMinHeight)
+                .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
             contentAlignment = Alignment.Center,
         ) {
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(MioDimens.searchPillHeight),
-                shape = RoundedCornerShape(MioDimens.radiusPill),
+                    .height(MioSize.actionPillHeight),
+                shape = RoundedCornerShape(MioRadius.pill),
                 color = MaterialTheme.colorScheme.surfaceContainerHigh
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(horizontal = MioDimens.gapLg)
+                    modifier = Modifier.padding(horizontal = MioSpacing.lg)
                 ) {
                     BasicTextField(
                         value = searchQuery,
@@ -145,8 +147,8 @@ private fun FocusTopBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .heightIn(min = MioDimens.topBarMinHeight)
-                .padding(horizontal = MioDimens.topBarHorizontal, vertical = MioDimens.topBarVertical),
+                .heightIn(min = MioSize.topBarMinHeight)
+                .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
             contentAlignment = Alignment.Center,
         ) {
             Text(
