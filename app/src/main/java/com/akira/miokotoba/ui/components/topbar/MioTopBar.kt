@@ -1,6 +1,14 @@
 package com.akira.miokotoba.ui.components.topbar
 
-import androidx.compose.foundation.clickable
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -8,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,33 +29,63 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.R
+import com.akira.miokotoba.ui.animation.MioMotion
 import com.akira.miokotoba.ui.design.MioRadius
 import com.akira.miokotoba.ui.design.MioSize
 import com.akira.miokotoba.ui.design.MioSpacing
 
 @Composable
 fun MioTopBar(
-    mode: TopBarMode,
-    onModeChange: (TopBarMode) -> Unit,
-    title: String,
-    searchQuery: String,
-    onQueryChange: (String) -> Unit
+    state: MioTopBarState,
+    onNavigationClick: () -> Unit = {},
+    onActionClick: (MioTopBarActionType) -> Unit = {},
+    onSearchQueryChange: (String) -> Unit = {},
+    onSearchDismiss: () -> Unit = {}
 ) {
-    when (mode) {
-        is TopBarMode.Default -> DefaultTopBar(title, onModeChange)
-        is TopBarMode.Search -> SearchTopBar(onModeChange, onQueryChange, searchQuery)
-        is TopBarMode.Focus -> FocusTopBar(title)
+    AnimatedContent(
+        targetState = state.searchState?.active == true,
+        transitionSpec = {
+            (fadeIn(animationSpec = MioMotion.standardTween()) +
+                scaleIn(
+                    animationSpec = MioMotion.standardTween(),
+                    initialScale = 0.98f
+                ))
+                .togetherWith(
+                    fadeOut(animationSpec = MioMotion.exitTween()) +
+                        scaleOut(
+                            animationSpec = MioMotion.exitTween(),
+                            targetScale = 0.98f
+                        )
+                )
+                .using(SizeTransform(clip = false))
+        },
+        label = "MioTopBarMode"
+    ) { isSearchActive ->
+        if (isSearchActive) {
+            MioTopBarSearchField(
+                query = state.searchState?.query.orEmpty(),
+                onQueryChange = onSearchQueryChange,
+                onDismiss = onSearchDismiss
+            )
+        } else {
+            MioTopBarContent(
+                state = state,
+                onNavigationClick = onNavigationClick,
+                onActionClick = onActionClick
+            )
+        }
     }
 }
 
 @Composable
-private fun DefaultTopBar(
-    title: String,
-    onModeChange: (TopBarMode) -> Unit
+private fun MioTopBarContent(
+    state: MioTopBarState,
+    onNavigationClick: () -> Unit,
+    onActionClick: (MioTopBarActionType) -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -58,30 +97,77 @@ private fun DefaultTopBar(
                 .windowInsetsPadding(WindowInsets.statusBars)
                 .heightIn(min = MioSize.topBarMinHeight)
                 .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxWidth(0.2f)
-                    .height(MioSize.actionPillHeight),
-                //.clickable {  },
-                onClick = { onModeChange(TopBarMode.Search) },
-                shape = RoundedCornerShape(MioRadius.pill),
-                color = MaterialTheme.colorScheme.surfaceContainerHigh
+            Row(
+                modifier = Modifier.align(alignment = Alignment.CenterStart),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        painterResource(id = R.drawable.ic_topbar_search),
-                        contentDescription = "展开"
+                if (state.navigationIcon is MioTopBarNavigation.Back) {
+                    MioTopBarActionButton(
+                        iconRes = R.drawable.ic_arrow_back,
+                        contentDescription = "返回",
+                        style = MioTopBarActionStyle.Plain,
+                        onClick = onNavigationClick
                     )
+                }
+
+                AnimatedContent(
+                    targetState = state.title,
+                    transitionSpec = {
+                        (fadeIn(animationSpec = MioMotion.standardTween()) +
+                            slideInVertically(
+                                animationSpec = MioMotion.standardTween(),
+                                initialOffsetY = { it / 4 }
+                            ))
+                            .togetherWith(
+                                fadeOut(animationSpec = MioMotion.quickTween()) +
+                                    slideOutVertically(
+                                        animationSpec = MioMotion.quickTween(),
+                                        targetOffsetY = { -it / 4 }
+                                    )
+                            )
+                    },
+                    label = "MioTopBarTitle"
+                ) { title ->
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            }
+
+            AnimatedContent(
+                targetState = state.actions,
+                modifier = Modifier.align(Alignment.CenterEnd),
+                transitionSpec = {
+                    (fadeIn(animationSpec = MioMotion.standardTween()) +
+                        scaleIn(
+                            animationSpec = MioMotion.standardTween(),
+                            initialScale = 0.92f
+                        ))
+                        .togetherWith(
+                            fadeOut(animationSpec = MioMotion.quickTween()) +
+                                scaleOut(
+                                    animationSpec = MioMotion.quickTween(),
+                                    targetScale = 0.92f
+                                )
+                        )
+                        .using(SizeTransform(clip = false))
+                },
+                label = "MioTopBarActions"
+            ) { actions ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    actions.forEach { action ->
+                        MioTopBarActionButton(
+                            iconRes = action.iconRes,
+                            contentDescription = action.contentDescription,
+                            style = action.style,
+                            onClick = { onActionClick(action.type) }
+                        )
+                    }
                 }
             }
         }
@@ -89,10 +175,10 @@ private fun DefaultTopBar(
 }
 
 @Composable
-private fun SearchTopBar(
-    onModeChange: (TopBarMode) -> Unit,
+private fun MioTopBarSearchField(
+    query: String,
     onQueryChange: (String) -> Unit,
-    searchQuery: String,
+    onDismiss: () -> Unit
 ) {
     Surface(
         color = MaterialTheme.colorScheme.background,
@@ -104,7 +190,7 @@ private fun SearchTopBar(
                 .windowInsetsPadding(WindowInsets.statusBars)
                 .heightIn(min = MioSize.topBarMinHeight)
                 .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
             Surface(
                 modifier = Modifier
@@ -118,15 +204,32 @@ private fun SearchTopBar(
                     modifier = Modifier.padding(horizontal = MioSpacing.lg)
                 ) {
                     BasicTextField(
-                        value = searchQuery,
+                        value = query,
                         onValueChange = onQueryChange,
                         modifier = Modifier.weight(1f),
                         singleLine = true,
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        decorationBox = { innerTextField ->
+                            Box(contentAlignment = Alignment.CenterStart) {
+                                if (query.isEmpty()) {
+                                    Text(
+                                        text = "搜索",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                                innerTextField()
+                            }
+                        }
                     )
-                    IconButton(onClick = { onModeChange(TopBarMode.Default) }) {
+
+                    IconButton(onClick = onDismiss) {
                         Icon(
-                            painterResource(id = R.drawable.ic_topbar_close),
-                            contentDescription = "关闭"
+                            painter = painterResource(id = R.drawable.ic_topbar_close),
+                            contentDescription = "关闭搜索",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -136,34 +239,36 @@ private fun SearchTopBar(
 }
 
 @Composable
-private fun FocusTopBar(
-    title: String
+private fun MioTopBarActionButton(
+    iconRes: Int,
+    contentDescription: String,
+    style: MioTopBarActionStyle,
+    onClick: () -> Unit
 ) {
+    val containerColor = when (style) {
+        MioTopBarActionStyle.Plain -> Color.Transparent
+        MioTopBarActionStyle.Filled -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+    val iconColor = when (style) {
+        MioTopBarActionStyle.Plain -> MaterialTheme.colorScheme.onBackground
+        MioTopBarActionStyle.Filled -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
     Surface(
-        color = MaterialTheme.colorScheme.background,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .padding(start = MioSpacing.sm)
+            .size(MioSize.iconContainer),
+        onClick = onClick,
+        shape = RoundedCornerShape(MioRadius.pill),
+        color = containerColor
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.statusBars)
-                .heightIn(min = MioSize.topBarMinHeight)
-                .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
-            contentAlignment = Alignment.Center,
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.CenterStart)
-            )
-
-            Text(
-                text = "加油 ✨",
-                style = MaterialTheme.typography.bodyMedium,
-                fontSize = 20.sp,
-                modifier = Modifier.align(Alignment.CenterEnd),
-                color = MaterialTheme.colorScheme.primary
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = contentDescription,
+                tint = iconColor
             )
         }
     }

@@ -13,16 +13,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.akira.miokotoba.R
 import com.akira.miokotoba.ui.components.PlaceholderPage
 import com.akira.miokotoba.ui.components.navigation.MioNavigationBar
 import com.akira.miokotoba.ui.components.topbar.MioTopBar
-import com.akira.miokotoba.ui.components.topbar.TopBarMode
+import com.akira.miokotoba.ui.components.topbar.MioTopBarAction
+import com.akira.miokotoba.ui.components.topbar.MioTopBarActionStyle
+import com.akira.miokotoba.ui.components.topbar.MioTopBarActionType
+import com.akira.miokotoba.ui.components.topbar.MioTopBarSearchState
+import com.akira.miokotoba.ui.components.topbar.MioTopBarState
 import com.akira.miokotoba.ui.features.study.StudyStartPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookViewModel
@@ -36,10 +40,43 @@ import com.akira.miokotoba.ui.navigation.Screen
 @Composable
 fun MainTabsScreen(navController: NavController) {
     var selectedTab by rememberSaveable { mutableStateOf(BottomNavItem.Study) }
-    var topBarMode by remember { mutableStateOf<TopBarMode>(TopBarMode.Focus) }
 
     val wordBookViewModel: WordBookViewModel = viewModel()
     val wordBookUiState = wordBookViewModel.uiState
+
+    var isSearchActive by rememberSaveable { mutableStateOf(false) }
+    val topBarState = when (selectedTab) {
+        BottomNavItem.WordBook -> MioTopBarState(
+            title = selectedTab.label,
+            actions = listOf(
+                MioTopBarAction(
+                    iconRes = R.drawable.ic_topbar_search,
+                    contentDescription = "搜索单词本",
+                    type = MioTopBarActionType.Search,
+                    style = MioTopBarActionStyle.Filled
+                )
+            ),
+            searchState = MioTopBarSearchState(
+                query = wordBookUiState.searchQuery,
+                active = isSearchActive
+            )
+        )
+
+        BottomNavItem.Study -> MioTopBarState(
+            title = selectedTab.label,
+            actions = listOf(
+                MioTopBarAction(
+                    iconRes = R.drawable.ic_nav_settings_settings,
+                    contentDescription = "学习设置",
+                    type = MioTopBarActionType.Settings
+                )
+            )
+        )
+
+        BottomNavItem.Settings -> MioTopBarState(
+            title = selectedTab.label
+        )
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars
@@ -51,21 +88,30 @@ fun MainTabsScreen(navController: NavController) {
                 selectedItem = selectedTab,
                 onScreenSelected = { tab ->
                     if (selectedTab != tab) {
+                        isSearchActive = false
                         wordBookViewModel.onSearchQueryChange("")
-                        topBarMode =
-                            if (tab == BottomNavItem.Study) TopBarMode.Focus else TopBarMode.Default
+                        selectedTab = tab
                     }
-                    selectedTab = tab
                 }
             )
         },
         topBar = {
             MioTopBar(
-                mode = topBarMode,
-                onModeChange = { topBarMode = it },
-                title = selectedTab.label,
-                searchQuery = wordBookUiState.searchQuery,
-                onQueryChange = wordBookViewModel::onSearchQueryChange
+                state = topBarState,
+                onActionClick = { actionType ->
+                    when (actionType) {
+                        MioTopBarActionType.Search -> isSearchActive = true
+                        MioTopBarActionType.Settings -> {/* 打开学习设置页面 */
+                        }
+
+                        MioTopBarActionType.More -> Unit
+                    }
+                },
+                onSearchQueryChange = wordBookViewModel::onSearchQueryChange,
+                onSearchDismiss = {
+                    isSearchActive = false
+                    wordBookViewModel.onSearchQueryChange("")
+                }
             )
         }
     ) { innerPadding ->
