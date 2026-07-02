@@ -9,6 +9,7 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.animateDpAsState
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,11 +17,14 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -34,25 +38,29 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
 import com.akira.miokotoba.model.Word
-import com.akira.miokotoba.ui.animation.MioMotion
+import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioSize
 import com.akira.miokotoba.ui.design.MioSpacing
 import com.akira.miokotoba.ui.features.study.components.WordCardBase
 import com.akira.miokotoba.ui.features.wordbook.components.WordEntryCard
 import com.akira.miokotoba.ui.modifier.blurIf
 import com.akira.miokotoba.ui.modifier.tiltOnTouch
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordBookDetailPage(
+    bookId: String,
     uiState: WordBookDetailUiState,
     onAddWordClick: () -> Unit,
     onDismissAddWordPage: () -> Unit,
@@ -61,12 +69,46 @@ fun WordBookDetailPage(
     onDismissWordDetail: () -> Unit,
     onBack: () -> Unit
 ) {
+    if (uiState.bookId != bookId) return
+
     val wordBook = uiState.wordBook ?: return
     var displayedWord by remember { mutableStateOf<Word?>(null) }
     val isWordDetailVisible = uiState.selectedWord != null
+    val listState = rememberLazyListState()
+    var isFabVisible by remember { mutableStateOf(true) }
+    val fabOffsetX by animateDpAsState(
+        targetValue = if (isFabVisible) 0.dp else MioSize.iconContainer + MioSpacing.xxl,
+        animationSpec = MioMotion.standardTween(),
+        label = "WordBookDetailFabOffset"
+    )
 
     LaunchedEffect(uiState.selectedWord) {
         uiState.selectedWord?.let { displayedWord = it }
+    }
+
+    LaunchedEffect(listState) {
+        var previousIndex = listState.firstVisibleItemIndex
+        var previousOffset = listState.firstVisibleItemScrollOffset
+
+        snapshotFlow {
+            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
+        }.collectLatest { (index, offset) ->
+            val isScrollingDown = index > previousIndex ||
+                (index == previousIndex && offset > previousOffset)
+            val isScrollingUp = index < previousIndex ||
+                (index == previousIndex && offset < previousOffset)
+
+            if (index == 0 && offset == 0) {
+                isFabVisible = true
+            } else if (isScrollingDown) {
+                isFabVisible = false
+            } else if (isScrollingUp) {
+                isFabVisible = true
+            }
+
+            previousIndex = index
+            previousOffset = offset
+        }
     }
 
     BackHandler(enabled = uiState.showWordAddPage) {
@@ -128,7 +170,14 @@ fun WordBookDetailPage(
                     ) { innerPadding ->
                         Box(modifier = Modifier.fillMaxSize()) {
                             LazyColumn(
-                                contentPadding = innerPadding,
+                                modifier = Modifier.fillMaxSize(),
+                                state = listState,
+                                contentPadding = PaddingValues(
+                                    start = MioSpacing.lg,
+                                    top = innerPadding.calculateTopPadding() + MioSpacing.md,
+                                    end = MioSpacing.lg,
+                                    bottom = MioSize.fabBottomSpace + MioSpacing.xxxl
+                                ),
                                 verticalArrangement = Arrangement.spacedBy(MioSpacing.xs),
                             ) {
                                 items(
@@ -146,7 +195,8 @@ fun WordBookDetailPage(
                             FloatingActionButton(
                                 onClick = onAddWordClick,
                                 modifier = Modifier
-                                    .align(Alignment.BottomCenter)
+                                    .align(Alignment.BottomEnd)
+                                    .offset(x = fabOffsetX)
                                     .padding(
                                         vertical = MioSize.fabBottomSpace,
                                         horizontal = MioSpacing.lg

@@ -33,7 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import com.akira.miokotoba.R
-import com.akira.miokotoba.ui.animation.MioMotion
+import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioRadius
 import com.akira.miokotoba.ui.design.MioSize
 import com.akira.miokotoba.ui.design.MioSpacing

@@ -1,7 +1,6 @@
 package com.akira.miokotoba.ui.features.study.components
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,7 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.sp
 import com.akira.miokotoba.model.Word
-import com.akira.miokotoba.ui.animation.AnimationUtils
+import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioRadius
 import com.akira.miokotoba.ui.design.MioSpacing
 
@@ -33,11 +32,7 @@ fun WordCard(
 ) {
     val rotation by animateFloatAsState(
         targetValue = if (isFlipped) 180f else 0f,
-        animationSpec = tween(
-            durationMillis =
-                AnimationUtils.DURATION_MEDIUM,
-            easing = AnimationUtils.standardEasing
-        ),
+        animationSpec = MioMotion.standardTween(),
         label = "CardFlipAnimation"
     )
 

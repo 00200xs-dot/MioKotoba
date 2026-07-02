@@ -55,6 +55,7 @@ fun MainScreen() {
                     wordBookDetailViewModel.loadBook(bookId)
                 }
                 WordBookDetailPage(
+                    bookId = bookId,
                     uiState = wordBookDetailUiState,
                     onAddWordClick = wordBookDetailViewModel::onAddWordClick,
                     onDismissAddWordPage = wordBookDetailViewModel::onDismissAddWordPage,

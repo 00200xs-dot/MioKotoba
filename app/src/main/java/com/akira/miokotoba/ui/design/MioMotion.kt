@@ -45,6 +45,20 @@ object MioMotion {
     const val emphasized = 300
 
     /**
+     * 320ms：学习卡片入场。
+     *
+     * 卡片是学习页的核心对象，入场需要比普通组件更有存在感，但不能拖慢节奏。
+     */
+    const val studyCardEnter = 320
+
+    /**
+     * 380ms：学习卡片离场。
+     *
+     * 离场包含下落、缩放、轻微旋转，比普通退出动画稍长，避免“突然消失”的断裂感。
+     */
+    const val studyCardExit = 380
+
+    /**
      * 320ms：页面级转场。
      *
      * 适用场景：
@@ -84,6 +98,18 @@ object MioMotion {
     /** 强调 tween，用于容器变形、面板出现、较明显的空间变化。 */
     fun <T> emphasizedTween() = tween<T>(
         durationMillis = emphasized,
+        easing = standardEasing
+    )
+
+    /** 学习卡片入场 tween，用于主卡片从上方进入并稳定落位。 */
+    fun <T> studyCardEnterTween() = tween<T>(
+        durationMillis = studyCardEnter,
+        easing = standardEasing
+    )
+
+    /** 学习卡片离场 tween，用于评级后向下离开。 */
+    fun <T> studyCardExitTween() = tween<T>(
+        durationMillis = studyCardExit,
         easing = standardEasing
     )
 

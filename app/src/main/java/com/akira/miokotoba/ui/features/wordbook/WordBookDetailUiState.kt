@@ -4,6 +4,7 @@ import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.model.WordBook
 
 data class WordBookDetailUiState(
+    val bookId: String? = null,
     val wordBook: WordBook? = null,
     val words: List<Word> = emptyList(),
     val showWordAddPage: Boolean = false,

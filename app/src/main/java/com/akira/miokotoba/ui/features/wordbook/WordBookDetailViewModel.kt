@@ -17,10 +17,15 @@ class WordBookDetailViewModel(
     private var currentBookId: String? = null
 
     fun loadBook(bookId: String) {
+        if (currentBookId == bookId && uiState.wordBook != null) return
+
         currentBookId = bookId
         uiState = uiState.copy(
+            bookId = bookId,
             wordBook = repository.getBook(bookId),
-            words = repository.getWords(bookId)
+            words = repository.getWords(bookId),
+            showWordAddPage = false,
+            selectedWord = null
         )
     }
 
@@ -38,6 +43,7 @@ class WordBookDetailViewModel(
         repository.addWord(bookId, word)
 
         uiState = uiState.copy(
+            bookId = bookId,
             wordBook = repository.getBook(bookId),
             words = repository.getWords(bookId),
             showWordAddPage = false

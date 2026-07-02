@@ -39,7 +39,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.model.WordBook
-import com.akira.miokotoba.ui.animation.MioMotion
+import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioRadius
 import com.akira.miokotoba.ui.design.MioSize
 import com.akira.miokotoba.ui.design.MioSpacing

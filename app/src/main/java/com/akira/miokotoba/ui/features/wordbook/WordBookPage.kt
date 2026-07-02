@@ -48,7 +48,13 @@ fun WordBookPage(
     ) {
         // 列表
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = 0.dp, vertical = MioSpacing.md),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 0.dp,
+                top = MioSpacing.md,
+                end = 0.dp,
+                bottom = MioSize.fabBottomSpace + MioSpacing.xxxl
+            ),
             verticalArrangement = Arrangement.spacedBy(MioSpacing.md),
         ) {
             items(
