@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.akira.miokotoba.AppContainer
 import com.akira.miokotoba.ui.components.PlaceholderPage
+import com.akira.miokotoba.ui.features.study.KanaChartPage
 import com.akira.miokotoba.ui.features.study.StudyPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookDetailPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookDetailViewModel
@@ -80,7 +81,9 @@ fun MainScreen() {
                 )
             }
             composable(Screen.KanaChart.route) {
-                PlaceholderPage("五十音图")
+                KanaChartPage(
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }
