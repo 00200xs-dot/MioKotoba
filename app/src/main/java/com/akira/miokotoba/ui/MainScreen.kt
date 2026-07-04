@@ -60,8 +60,15 @@ fun MainScreen() {
                     onAddWordClick = wordBookDetailViewModel::onAddWordClick,
                     onDismissAddWordPage = wordBookDetailViewModel::onDismissAddWordPage,
                     onWordAdded = wordBookDetailViewModel::onWordAdded,
+                    onDismissWordEditPage = wordBookDetailViewModel::onDismissWordEditPage,
+                    onWordUpdated = wordBookDetailViewModel::onWordUpdated,
+                    onEditWordClick = wordBookDetailViewModel::onEditWordClick,
+                    onDeleteWordClick = wordBookDetailViewModel::onDeleteWordClick,
+                    onDismissDeleteDialog = wordBookDetailViewModel::onDismissDeleteDialog,
+                    onConfirmDeleteWord = wordBookDetailViewModel::onConfirmDeleteWord,
                     onWordClick = wordBookDetailViewModel::onWordClick,
                     onDismissWordDetail = wordBookDetailViewModel::onDismissWordDetail,
+                    onSearchQueryChange = wordBookDetailViewModel::onSearchQueryChange,
                     onBack = { navController.popBackStack() }
                 )
             }

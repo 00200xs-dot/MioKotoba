@@ -34,6 +34,24 @@ class InMemoryWordBookRepository : WordBookRepository {
         return newBook
     }
 
+    override fun updateBook(book: WordBook) {
+        books = books.map { oldBook ->
+            if (oldBook.id == book.id) {
+                oldBook.copy(
+                    title = book.title,
+                    description = book.description
+                )
+            } else {
+                oldBook
+            }
+        }
+    }
+
+    override fun deleteBook(bookId: String) {
+        books = books.filterNot { it.id == bookId }
+        wordsByBookId = wordsByBookId - bookId
+    }
+
     override fun addWord(bookId: String, word: Word) {
         val oldWords = wordsByBookId[bookId].orEmpty()
         wordsByBookId = wordsByBookId + (bookId to oldWords + word)
@@ -41,6 +59,34 @@ class InMemoryWordBookRepository : WordBookRepository {
         books = books.map { book ->
             if (book.id == bookId) {
                 book.copy(wordCount = book.wordCount + 1)
+            } else {
+                book
+            }
+        }
+    }
+
+    override fun updateWord(bookId: String, word: Word) {
+        val oldWords = wordsByBookId[bookId].orEmpty()
+
+        wordsByBookId = wordsByBookId + (
+                bookId to oldWords.map { oldWord ->
+                    if (oldWord.id == word.id) word else oldWord
+                }
+                )
+    }
+
+    override fun deleteWord(bookId: String, wordId: String) {
+        val oldWords = wordsByBookId[bookId].orEmpty()
+        val newWords = oldWords.filterNot { it.id == wordId }
+
+        wordsByBookId = wordsByBookId + (bookId to newWords)
+
+        books = books.map { book ->
+            if (book.id == bookId) {
+                book.copy(
+                    wordCount = newWords.size,
+                    learnedCount = newWords.count { it.mastered }
+                )
             } else {
                 book
             }

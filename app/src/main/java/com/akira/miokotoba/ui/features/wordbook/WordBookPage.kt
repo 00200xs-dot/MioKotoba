@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -18,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
 import com.akira.miokotoba.model.WordBook
+import com.akira.miokotoba.ui.components.MioSwipeAction
+import com.akira.miokotoba.ui.components.MioSwipeActionItem
 import com.akira.miokotoba.ui.design.MioRadius
 import com.akira.miokotoba.ui.design.MioSize
 import com.akira.miokotoba.ui.design.MioSpacing
@@ -40,7 +44,11 @@ fun WordBookPage(
     onDismissAddSheet: () -> Unit,
     onNewBookTitleChange: (String) -> Unit,
     onNewBookDescriptionChange: (String) -> Unit,
-    onCreateBook: () -> Unit
+    onCreateBook: () -> Unit,
+    onEditBookClick: (WordBook) -> Unit,
+    onDeleteBookClick: (WordBook) -> Unit,
+    onDismissDeleteDialog: () -> Unit,
+    onConfirmDeleteBook: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -61,12 +69,32 @@ fun WordBookPage(
                 items = uiState.filteredBooks,
                 key = { it.id }
             ) { wordBook ->
-                BookCard(
-                    wordBook = wordBook,
-                    // 点击进入词本详情页
-                    onClick = { onBookClick(wordBook) },
+                MioSwipeActionItem(
+                    rightAction = MioSwipeAction(
+                        iconRes = R.drawable.ic_delete,
+                        label = "删除",
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        contentDescription = "删除词书",
+                        onTriggered = { onDeleteBookClick(wordBook) }
+                    ),
+                    leftAction = MioSwipeAction(
+                        iconRes = R.drawable.ic_edit,
+                        label = "编辑",
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        contentDescription = "编辑词书",
+                        onTriggered = { onEditBookClick(wordBook) }
+                    ),
                     modifier = Modifier.animateItem()
-                )
+                ) { contentModifier ->
+                    BookCard(
+                        wordBook = wordBook,
+                        // 点击进入词本详情页
+                        onClick = { onBookClick(wordBook) },
+                        modifier = contentModifier
+                    )
+                }
             }
         }
         // FAB
@@ -82,8 +110,34 @@ fun WordBookPage(
             )
         }
     }
+    uiState.bookPendingDelete?.let { book ->
+        AlertDialog(
+            onDismissRequest = onDismissDeleteDialog,
+            title = {
+                Text("删除词书？")
+            },
+            text = {
+                Text("确定要删除「${book.title}」吗？其中的 ${book.wordCount} 个单词也会被删除。")
+            },
+            confirmButton = {
+                TextButton(onClick = onConfirmDeleteBook) {
+                    Text(
+                        text = "删除",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissDeleteDialog) {
+                    Text("取消")
+                }
+            }
+        )
+    }
     // 添加新词本 Sheet
     if (uiState.showAddSheet) {
+        val isEditMode = uiState.editingBook != null
+
         ModalBottomSheet(
             onDismissRequest = onDismissAddSheet, // 下拉关闭 Sheet
         ) {
@@ -93,7 +147,7 @@ fun WordBookPage(
                 verticalArrangement = Arrangement.spacedBy(MioSpacing.lg)
             ) {
                 Text(
-                    text = "新建单词本",
+                    text = if (isEditMode) "编辑词书" else "新建词书",
                     style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,    // 文字居中
                     modifier = Modifier.fillMaxWidth()
@@ -130,7 +184,7 @@ fun WordBookPage(
                     enabled = uiState.newBookTitle.isNotBlank() && uiState.newBookDescription.isNotBlank(),
                     onClick = onCreateBook
                 ) {
-                    Text("确认")
+                    Text(if (isEditMode) "保存" else "确认")
                 }
             }
         }

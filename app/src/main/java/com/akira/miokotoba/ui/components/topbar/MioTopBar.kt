@@ -67,6 +67,7 @@ fun MioTopBar(
     ) { isSearchActive ->
         if (isSearchActive) {
             MioTopBarSearchField(
+                density = state.density,
                 query = state.searchState?.query.orEmpty(),
                 onQueryChange = onSearchQueryChange,
                 onDismiss = onSearchDismiss
@@ -87,6 +88,16 @@ private fun MioTopBarContent(
     onNavigationClick: () -> Unit,
     onActionClick: (MioTopBarActionType) -> Unit
 ) {
+    val isCompact = state.density == MioTopBarDensity.Compact
+    val minHeight = if (isCompact) MioSize.topBarCompactMinHeight else MioSize.topBarMinHeight
+    val horizontalPadding = if (isCompact) MioSpacing.lg else MioSpacing.xxl
+    val verticalPadding = if (isCompact) MioSpacing.sm else MioSpacing.lg
+    val titleStyle = if (isCompact) {
+        MaterialTheme.typography.titleLarge
+    } else {
+        MaterialTheme.typography.headlineMedium
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
@@ -95,8 +106,8 @@ private fun MioTopBarContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .heightIn(min = MioSize.topBarMinHeight)
-                .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
+                .heightIn(min = minHeight)
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
             contentAlignment = Alignment.Center
         ) {
             Row(
@@ -132,7 +143,7 @@ private fun MioTopBarContent(
                 ) { title ->
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.headlineMedium,
+                        style = titleStyle,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onBackground
                     )
@@ -176,10 +187,16 @@ private fun MioTopBarContent(
 
 @Composable
 private fun MioTopBarSearchField(
+    density: MioTopBarDensity,
     query: String,
     onQueryChange: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val isCompact = density == MioTopBarDensity.Compact
+    val minHeight = if (isCompact) MioSize.topBarCompactMinHeight else MioSize.topBarMinHeight
+    val horizontalPadding = if (isCompact) MioSpacing.lg else MioSpacing.xxl
+    val verticalPadding = if (isCompact) MioSpacing.sm else MioSpacing.lg
+
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
@@ -188,8 +205,8 @@ private fun MioTopBarSearchField(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .heightIn(min = MioSize.topBarMinHeight)
-                .padding(horizontal = MioSpacing.xxl, vertical = MioSpacing.lg),
+                .heightIn(min = minHeight)
+                .padding(horizontal = horizontalPadding, vertical = verticalPadding),
             contentAlignment = Alignment.Center
         ) {
             Surface(

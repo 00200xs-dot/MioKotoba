@@ -12,5 +12,13 @@ interface WordBookRepository {
 
     fun addBook(title: String, description: String): WordBook
 
+    fun updateBook(book: WordBook)
+
+    fun deleteBook(bookId: String)
+
     fun addWord(bookId: String, word: Word)
+
+    fun updateWord(bookId: String, word: Word)
+
+    fun deleteWord(bookId: String, wordId: String)
 }

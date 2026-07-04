@@ -111,6 +111,9 @@ object MioSize {
     /** 88dp：Mio 顶栏最小高度，包含状态栏后的视觉高度基准。 */
     val topBarMinHeight = 88.dp
 
+    /** 64dp：二级页面紧凑顶栏高度，用于返回页、详情页等。 */
+    val topBarCompactMinHeight = 64.dp
+
     /** 56dp：右上角胶囊操作区和搜索栏的标准高度。 */
     val actionPillHeight = 56.dp
 

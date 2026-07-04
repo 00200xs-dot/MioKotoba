@@ -38,22 +38,25 @@ import com.akira.miokotoba.ui.design.MioSpacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordAddPage(
+    initialWord: Word? = null,
     onBack: () -> Unit,
-    onWordAdded: (Word) -> Unit
+    onSubmit: (Word) -> Unit
 ) {
-    var kanji by remember { mutableStateOf("") }
-    var kana by remember { mutableStateOf("") }
-    var romaji by remember { mutableStateOf("") }
-    var meaning by remember { mutableStateOf("") }
+    var kanji by remember(initialWord) { mutableStateOf(initialWord?.kanji.orEmpty()) }
+    var kana by remember(initialWord) { mutableStateOf(initialWord?.kana.orEmpty()) }
+    var romaji by remember(initialWord) { mutableStateOf(initialWord?.romaji.orEmpty()) }
+    var meaning by remember(initialWord) { mutableStateOf(initialWord?.meaning.orEmpty()) }
 
     val canSubmit = kana.isNotBlank() && meaning.isNotBlank() && romaji.isNotBlank()
+    val isEditMode = initialWord != null
+    val pageTitle = if (isEditMode) "编辑单词" else "添加新单词"
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "添加新单词",
+                        text = pageTitle,
                         style = MaterialTheme.typography.titleLarge
                     )
                 },
@@ -78,14 +81,14 @@ fun WordAddPage(
                 contentPadding = PaddingValues(horizontal = MioSpacing.xl),
                 enabled = canSubmit,
                 onClick = {
-                    onWordAdded(
+                    onSubmit(
                         Word(
-                            id = java.util.UUID.randomUUID().toString(),
+                            id = initialWord?.id ?: java.util.UUID.randomUUID().toString(),
                             kanji = kanji.ifBlank { null },
                             kana = kana,
                             romaji = romaji,
                             meaning = meaning,
-                            mastered = false
+                            mastered = initialWord?.mastered ?: false
                         )
                     )
                 }

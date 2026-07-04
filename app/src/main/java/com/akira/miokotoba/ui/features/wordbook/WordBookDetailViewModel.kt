@@ -24,9 +24,16 @@ class WordBookDetailViewModel(
             bookId = bookId,
             wordBook = repository.getBook(bookId),
             words = repository.getWords(bookId),
+            searchQuery = "",
             showWordAddPage = false,
-            selectedWord = null
+            selectedWord = null,
+            editingWord = null,
+            wordPendingDelete = null
         )
+    }
+
+    fun onSearchQueryChange(query: String) {
+        uiState = uiState.copy(searchQuery = query)
     }
 
     fun onAddWordClick() {
@@ -56,5 +63,52 @@ class WordBookDetailViewModel(
 
     fun onDismissWordDetail() {
         uiState = uiState.copy(selectedWord = null)
+    }
+
+    fun onEditWordClick(word: Word) {
+        uiState = uiState.copy(
+            editingWord = word,
+            selectedWord = null
+        )
+    }
+
+    fun onDismissWordEditPage() {
+        uiState = uiState.copy(editingWord = null)
+    }
+
+    fun onWordUpdated(word: Word) {
+        val bookId = currentBookId ?: return
+
+        repository.updateWord(bookId, word)
+
+        uiState = uiState.copy(
+            bookId = bookId,
+            wordBook = repository.getBook(bookId),
+            words = repository.getWords(bookId),
+            editingWord = null
+        )
+    }
+
+    fun onDeleteWordClick(word: Word) {
+        uiState = uiState.copy(wordPendingDelete = word)
+    }
+
+    fun onDismissDeleteDialog() {
+        uiState = uiState.copy(wordPendingDelete = null)
+    }
+
+    fun onConfirmDeleteWord() {
+        val bookId = currentBookId ?: return
+        val word = uiState.wordPendingDelete ?: return
+
+        repository.deleteWord(bookId, word.id)
+
+        uiState = uiState.copy(
+            bookId = bookId,
+            wordBook = repository.getBook(bookId),
+            words = repository.getWords(bookId),
+            selectedWord = null,
+            wordPendingDelete = null
+        )
     }
 }

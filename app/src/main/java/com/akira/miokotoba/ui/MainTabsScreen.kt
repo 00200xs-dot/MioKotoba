@@ -131,7 +131,11 @@ fun MainTabsScreen(navController: NavController) {
                     onDismissAddSheet = wordBookViewModel::onDismissAddSheet,
                     onNewBookTitleChange = wordBookViewModel::onNewBookTitleChange,
                     onNewBookDescriptionChange = wordBookViewModel::onNewBookDescriptionChange,
-                    onCreateBook = wordBookViewModel::onCreateBook
+                    onCreateBook = wordBookViewModel::onCreateBook,
+                    onEditBookClick = wordBookViewModel::onEditBookClick,
+                    onDeleteBookClick = wordBookViewModel::onDeleteBookClick,
+                    onDismissDeleteDialog = wordBookViewModel::onDismissDeleteDialog,
+                    onConfirmDeleteBook = wordBookViewModel::onConfirmDeleteBook
                 )
 
                 BottomNavItem.Study -> StudyStartPage(

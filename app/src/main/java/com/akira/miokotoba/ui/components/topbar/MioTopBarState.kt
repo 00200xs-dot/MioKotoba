@@ -6,7 +6,8 @@ data class MioTopBarState(
     val title: String,
     val navigationIcon: MioTopBarNavigation = MioTopBarNavigation.None,
     val actions: List<MioTopBarAction> = emptyList(),
-    val searchState: MioTopBarSearchState? = null
+    val searchState: MioTopBarSearchState? = null,
+    val density: MioTopBarDensity = MioTopBarDensity.Prominent
 )
 
 sealed interface MioTopBarNavigation {
@@ -30,6 +31,11 @@ enum class MioTopBarActionType {
 enum class MioTopBarActionStyle {
     Plain,
     Filled
+}
+
+enum class MioTopBarDensity {
+    Prominent,
+    Compact
 }
 
 data class MioTopBarSearchState(

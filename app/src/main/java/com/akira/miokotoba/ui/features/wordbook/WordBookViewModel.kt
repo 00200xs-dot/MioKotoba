@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.akira.miokotoba.AppContainer
 import com.akira.miokotoba.data.WordBookRepository
+import com.akira.miokotoba.model.WordBook
 
 class WordBookViewModel(
     private val repository: WordBookRepository = AppContainer.wordBookRepository
@@ -18,12 +19,18 @@ class WordBookViewModel(
     }
 
     fun onAddBookClick() {
-        uiState = uiState.copy(showAddSheet = true)
+        uiState = uiState.copy(
+            showAddSheet = true,
+            editingBook = null,
+            newBookTitle = "",
+            newBookDescription = ""
+        )
     }
 
     fun onDismissAddSheet() {
         uiState = uiState.copy(
             showAddSheet = false,
+            editingBook = null,
             newBookTitle = "",
             newBookDescription = ""
         )
@@ -44,16 +51,56 @@ class WordBookViewModel(
 
         if (title.isBlank() || description.isBlank()) return
 
-        repository.addBook(
-            title = title,
-            description = description
-        )
+        val editingBook = uiState.editingBook
+
+        if (editingBook != null) {
+            repository.updateBook(
+                editingBook.copy(
+                    title = title,
+                    description = description
+                )
+            )
+        } else {
+            repository.addBook(
+                title = title,
+                description = description
+            )
+        }
 
         uiState = uiState.copy(
             books = repository.getBooks(),
             showAddSheet = false,
+            editingBook = null,
             newBookTitle = "",
             newBookDescription = ""
+        )
+    }
+
+    fun onEditBookClick(book: WordBook) {
+        uiState = uiState.copy(
+            showAddSheet = true,
+            editingBook = book,
+            newBookTitle = book.title,
+            newBookDescription = book.description
+        )
+    }
+
+    fun onDeleteBookClick(book: WordBook) {
+        uiState = uiState.copy(bookPendingDelete = book)
+    }
+
+    fun onDismissDeleteDialog() {
+        uiState = uiState.copy(bookPendingDelete = null)
+    }
+
+    fun onConfirmDeleteBook() {
+        val book = uiState.bookPendingDelete ?: return
+
+        repository.deleteBook(book.id)
+
+        uiState = uiState.copy(
+            books = repository.getBooks(),
+            bookPendingDelete = null
         )
     }
 }

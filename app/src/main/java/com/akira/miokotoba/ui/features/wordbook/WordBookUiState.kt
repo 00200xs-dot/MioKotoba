@@ -6,6 +6,8 @@ data class WordBookUiState(
     val books: List<WordBook> = emptyList(),
     val searchQuery: String = "",
     val showAddSheet: Boolean = false,
+    val editingBook: WordBook? = null,
+    val bookPendingDelete: WordBook? = null,
     val newBookTitle: String = "",
     val newBookDescription: String = ""
 ) {

@@ -25,19 +25,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,13 +51,21 @@ import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioSize
 import com.akira.miokotoba.ui.design.MioSpacing
+import com.akira.miokotoba.ui.components.topbar.MioTopBar
+import com.akira.miokotoba.ui.components.topbar.MioTopBarAction
+import com.akira.miokotoba.ui.components.topbar.MioTopBarActionStyle
+import com.akira.miokotoba.ui.components.topbar.MioTopBarActionType
+import com.akira.miokotoba.ui.components.topbar.MioTopBarDensity
+import com.akira.miokotoba.ui.components.topbar.MioTopBarNavigation
+import com.akira.miokotoba.ui.components.topbar.MioTopBarSearchState
+import com.akira.miokotoba.ui.components.topbar.MioTopBarState
 import com.akira.miokotoba.ui.features.study.components.WordCardBase
-import com.akira.miokotoba.ui.features.wordbook.components.WordEntryCard
+import com.akira.miokotoba.ui.features.wordbook.components.SwipeWordEntryItem
 import com.akira.miokotoba.ui.modifier.blurIf
 import com.akira.miokotoba.ui.modifier.tiltOnTouch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WordBookDetailPage(
     bookId: String,
@@ -65,17 +73,44 @@ fun WordBookDetailPage(
     onAddWordClick: () -> Unit,
     onDismissAddWordPage: () -> Unit,
     onWordAdded: (Word) -> Unit,
+    onDismissWordEditPage: () -> Unit,
+    onWordUpdated: (Word) -> Unit,
+    onEditWordClick: (Word) -> Unit,
+    onDeleteWordClick: (Word) -> Unit,
+    onDismissDeleteDialog: () -> Unit,
+    onConfirmDeleteWord: () -> Unit,
     onWordClick: (Word) -> Unit,
     onDismissWordDetail: () -> Unit,
+    onSearchQueryChange: (String) -> Unit,
     onBack: () -> Unit
 ) {
     if (uiState.bookId != bookId) return
 
     val wordBook = uiState.wordBook ?: return
     var displayedWord by remember { mutableStateOf<Word?>(null) }
+    val wordBeingEdited = uiState.editingWord
+    val isWordFormVisible = uiState.showWordAddPage || wordBeingEdited != null
     val isWordDetailVisible = uiState.selectedWord != null
+    var isSearchActive by rememberSaveable(bookId) { mutableStateOf(false) }
     val listState = rememberLazyListState()
     var isFabVisible by remember { mutableStateOf(true) }
+    val topBarState = MioTopBarState(
+        title = wordBook.title,
+        navigationIcon = MioTopBarNavigation.Back,
+        actions = listOf(
+            MioTopBarAction(
+                iconRes = R.drawable.ic_topbar_search,
+                contentDescription = "搜索单词",
+                type = MioTopBarActionType.Search,
+                style = MioTopBarActionStyle.Filled
+            )
+        ),
+        searchState = MioTopBarSearchState(
+            query = uiState.searchQuery,
+            active = isSearchActive
+        ),
+        density = MioTopBarDensity.Compact
+    )
     val fabOffsetX by animateDpAsState(
         targetValue = if (isFabVisible) 0.dp else MioSize.iconContainer + MioSpacing.xxl,
         animationSpec = MioMotion.standardTween(),
@@ -91,55 +126,78 @@ fun WordBookDetailPage(
         var previousOffset = listState.firstVisibleItemScrollOffset
 
         snapshotFlow {
-            listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset
-        }.collectLatest { (index, offset) ->
-            val isScrollingDown = index > previousIndex ||
-                (index == previousIndex && offset > previousOffset)
-            val isScrollingUp = index < previousIndex ||
-                (index == previousIndex && offset < previousOffset)
+            Triple(
+                listState.isScrollInProgress,
+                listState.firstVisibleItemIndex,
+                listState.firstVisibleItemScrollOffset
+            )
+        }
+            .distinctUntilChanged()
+            .collectLatest { (isScrolling, index, offset) ->
+                val hasActualScroll = index != previousIndex || offset != previousOffset
 
-            if (index == 0 && offset == 0) {
-                isFabVisible = true
-            } else if (isScrollingDown) {
-                isFabVisible = false
-            } else if (isScrollingUp) {
-                isFabVisible = true
+                if (!isScrolling) {
+                    isFabVisible = true
+                } else if (hasActualScroll) {
+                    isFabVisible = false
+                }
+
+                previousIndex = index
+                previousOffset = offset
             }
+    }
 
-            previousIndex = index
-            previousOffset = offset
+    BackHandler(enabled = isWordFormVisible) {
+        if (wordBeingEdited != null) {
+            onDismissWordEditPage()
+        } else {
+            onDismissAddWordPage()
         }
     }
 
-    BackHandler(enabled = uiState.showWordAddPage) {
-        onDismissAddWordPage()
-    }
-
-    BackHandler(enabled = isWordDetailVisible && !uiState.showWordAddPage) {
+    BackHandler(enabled = isWordDetailVisible && !isWordFormVisible) {
         onDismissWordDetail()
     }
 
+    BackHandler(enabled = isSearchActive && !isWordFormVisible && !isWordDetailVisible) {
+        isSearchActive = false
+        onSearchQueryChange("")
+    }
+
     AnimatedContent(
-        targetState = uiState.showWordAddPage,
-        label = "WordAddPageTransition",
+        targetState = isWordFormVisible,
+        label = "WordFormPageTransition",
         transitionSpec = {
             if (targetState) {
                 slideInHorizontally(MioMotion.emphasizedTween()) { it / 4 } +
-                    fadeIn(MioMotion.standardTween()) togetherWith
-                    slideOutHorizontally(MioMotion.standardTween()) { -it / 6 } +
-                    fadeOut(MioMotion.standardTween())
+                        fadeIn(MioMotion.standardTween()) togetherWith
+                        slideOutHorizontally(MioMotion.standardTween()) { -it / 6 } +
+                        fadeOut(MioMotion.standardTween())
             } else {
                 slideInHorizontally(MioMotion.emphasizedTween()) { -it / 6 } +
-                    fadeIn(MioMotion.standardTween()) togetherWith
-                    slideOutHorizontally(MioMotion.standardTween()) { it / 4 } +
-                    fadeOut(MioMotion.standardTween())
+                        fadeIn(MioMotion.standardTween()) togetherWith
+                        slideOutHorizontally(MioMotion.standardTween()) { it / 4 } +
+                        fadeOut(MioMotion.standardTween())
             }
         }
-    ) { showWordAddPage ->
-        if (showWordAddPage) {
+    ) { showWordForm ->
+        if (showWordForm) {
             WordAddPage(
-                onBack = onDismissAddWordPage,
-                onWordAdded = onWordAdded
+                initialWord = wordBeingEdited,
+                onBack = {
+                    if (wordBeingEdited != null) {
+                        onDismissWordEditPage()
+                    } else {
+                        onDismissAddWordPage()
+                    }
+                },
+                onSubmit = { word ->
+                    if (wordBeingEdited != null) {
+                        onWordUpdated(word)
+                    } else {
+                        onWordAdded(word)
+                    }
+                }
             )
         } else {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -148,22 +206,51 @@ fun WordBookDetailPage(
                         .fillMaxSize()
                         .blurIf(isWordDetailVisible)
                 ) {
+                    uiState.wordPendingDelete?.let { word ->
+                        AlertDialog(
+                            onDismissRequest = onDismissDeleteDialog,
+                            title = {
+                                Text("删除单词？")
+                            },
+                            text = {
+                                Text("确定要删除「${word.kanji ?: word.kana}」吗？这个操作无法撤销。")
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = onConfirmDeleteWord
+                                ) {
+                                    Text(
+                                        text = "删除",
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = onDismissDeleteDialog
+                                ) {
+                                    Text("取消")
+                                }
+                            }
+                        )
+                    }
+
                     Scaffold(
                         topBar = {
-                            TopAppBar(
-                                title = {
-                                    Text(
-                                        text = wordBook.title,
-                                        style = MaterialTheme.typography.titleLarge
-                                    )
-                                },
-                                navigationIcon = {
-                                    IconButton(onClick = onBack) {
-                                        Icon(
-                                            painterResource(R.drawable.ic_arrow_back),
-                                            contentDescription = "返回"
-                                        )
+                            MioTopBar(
+                                state = topBarState,
+                                onNavigationClick = onBack,
+                                onActionClick = { actionType ->
+                                    when (actionType) {
+                                        MioTopBarActionType.Search -> isSearchActive = true
+                                        MioTopBarActionType.Settings -> Unit
+                                        MioTopBarActionType.More -> Unit
                                     }
+                                },
+                                onSearchQueryChange = onSearchQueryChange,
+                                onSearchDismiss = {
+                                    isSearchActive = false
+                                    onSearchQueryChange("")
                                 }
                             )
                         }
@@ -181,12 +268,14 @@ fun WordBookDetailPage(
                                 verticalArrangement = Arrangement.spacedBy(MioSpacing.xs),
                             ) {
                                 items(
-                                    items = uiState.words,
+                                    items = uiState.filteredWords,
                                     key = { it.id }
                                 ) { word ->
-                                    WordEntryCard(
+                                    SwipeWordEntryItem(
                                         word = word,
                                         onClick = { onWordClick(word) },
+                                        onEdit = { onEditWordClick(word) },
+                                        onDelete = { onDeleteWordClick(word) },
                                         modifier = Modifier.animateItem()
                                     )
                                 }
