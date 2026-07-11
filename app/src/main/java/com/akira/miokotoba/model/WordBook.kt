@@ -20,5 +20,13 @@ data class Word(
     val kana: String,       // 假名读音
     val romaji: String,     // 罗马音
     val meaning: String,    // 中文释义
-    val mastered: Boolean   // 是否掌握
-) : java.io.Serializable
+    val reviewState: ReviewState = ReviewState.Again,
+    val repetitions: Int = 0,
+    val easeFactor: Double = 2.5,
+    val intervalDays: Int = 0,
+    val nextReviewAt: Long = 0L,
+    val lastReviewedAt: Long? = null
+) : java.io.Serializable {
+    val mastered: Boolean
+        get() = reviewState == ReviewState.Know || reviewState == ReviewState.Easy
+}

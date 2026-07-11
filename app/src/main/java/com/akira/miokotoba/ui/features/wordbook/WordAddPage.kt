@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import com.akira.miokotoba.R
+import com.akira.miokotoba.model.ReviewState
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.components.MioSurfaceCard
 import com.akira.miokotoba.ui.design.MioRadius
@@ -88,7 +89,12 @@ fun WordAddPage(
                             kana = kana,
                             romaji = romaji,
                             meaning = meaning,
-                            mastered = initialWord?.mastered ?: false
+                            reviewState = initialWord?.reviewState ?: ReviewState.Again,
+                            repetitions = initialWord?.repetitions ?: 0,
+                            easeFactor = initialWord?.easeFactor ?: 2.5,
+                            intervalDays = initialWord?.intervalDays ?: 0,
+                            nextReviewAt = initialWord?.nextReviewAt ?: 0L,
+                            lastReviewedAt = initialWord?.lastReviewedAt
                         )
                     )
                 }

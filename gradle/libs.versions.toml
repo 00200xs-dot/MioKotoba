@@ -12,6 +12,7 @@ material3 = "1.4.0"
 remoteCreationCore = "1.0.0-alpha010"
 navigationCompose = "2.9.8"
 foundationLayout = "1.11.4"
+ksp = "2.3.8"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,4 +38,5 @@ androidx-compose-foundation-layout = { group = "androidx.compose.foundation", na
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

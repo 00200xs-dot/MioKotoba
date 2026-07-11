@@ -4,21 +4,21 @@ import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.model.WordBook
 
 interface WordBookRepository {
-    fun getBooks(): List<WordBook>
+    suspend fun getBooks(): List<WordBook>
 
-    fun getBook(bookId: String): WordBook?
+    suspend fun getBook(bookId: String): WordBook?
 
-    fun getWords(bookId: String): List<Word>
+    suspend fun getWords(bookId: String): List<Word>
 
-    fun addBook(title: String, description: String): WordBook
+    suspend fun addBook(title: String, description: String): WordBook
 
-    fun updateBook(book: WordBook)
+    suspend fun updateBook(book: WordBook)
 
-    fun deleteBook(bookId: String)
+    suspend fun deleteBook(bookId: String)
 
-    fun addWord(bookId: String, word: Word)
+    suspend fun addWord(bookId: String, word: Word)
 
-    fun updateWord(bookId: String, word: Word)
+    suspend fun updateWord(bookId: String, word: Word)
 
-    fun deleteWord(bookId: String, wordId: String)
+    suspend fun deleteWord(bookId: String, wordId: String)
 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,6 +43,11 @@ fun MainTabsScreen(navController: NavController) {
     var selectedTab by rememberSaveable { mutableStateOf(BottomNavItem.Study) }
 
     val wordBookViewModel: WordBookViewModel = viewModel()
+
+    LaunchedEffect(Unit) {
+        wordBookViewModel.refreshBooks()
+    }
+
     val wordBookUiState = wordBookViewModel.uiState
 
     var isSearchActive by rememberSaveable { mutableStateOf(false) }

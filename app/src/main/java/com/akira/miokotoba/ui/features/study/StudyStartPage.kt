@@ -14,6 +14,7 @@ import androidx.compose.material.icons.rounded.GridView
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,8 +37,14 @@ fun StudyStartPage(
     navController: NavController
 ) {
     val wordBookRepository = AppContainer.wordBookRepository
-    val books = wordBookRepository.getBooks()
+    var books by remember { mutableStateOf<List<WordBook>>(emptyList()) }
     var selectedBook by remember { mutableStateOf(books.firstOrNull()) }
+
+    LaunchedEffect(Unit) {
+        books = wordBookRepository.getBooks()
+        selectedBook = books.firstOrNull()
+    }
+
     var showPicker by remember { mutableStateOf(false) }
 
     Box(modifier = Modifier.fillMaxSize()) {

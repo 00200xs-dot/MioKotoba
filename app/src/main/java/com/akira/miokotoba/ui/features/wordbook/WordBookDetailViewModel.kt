@@ -4,9 +4,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.akira.miokotoba.AppContainer
 import com.akira.miokotoba.data.WordBookRepository
 import com.akira.miokotoba.model.Word
+import kotlinx.coroutines.launch
 
 class WordBookDetailViewModel(
     private val repository: WordBookRepository = AppContainer.wordBookRepository
@@ -20,15 +22,26 @@ class WordBookDetailViewModel(
         if (currentBookId == bookId && uiState.wordBook != null) return
 
         currentBookId = bookId
+
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                bookId = bookId,
+                wordBook = repository.getBook(bookId),
+                words = repository.getWords(bookId),
+                searchQuery = "",
+                showWordAddPage = false,
+                selectedWord = null,
+                editingWord = null,
+                wordPendingDelete = null
+            )
+        }
+    }
+
+    private suspend fun reloadCurrentBook(bookId: String) {
         uiState = uiState.copy(
             bookId = bookId,
             wordBook = repository.getBook(bookId),
-            words = repository.getWords(bookId),
-            searchQuery = "",
-            showWordAddPage = false,
-            selectedWord = null,
-            editingWord = null,
-            wordPendingDelete = null
+            words = repository.getWords(bookId)
         )
     }
 
@@ -47,14 +60,16 @@ class WordBookDetailViewModel(
     fun onWordAdded(word: Word) {
         val bookId = currentBookId ?: return
 
-        repository.addWord(bookId, word)
+        viewModelScope.launch {
+            repository.addWord(bookId, word)
 
-        uiState = uiState.copy(
-            bookId = bookId,
-            wordBook = repository.getBook(bookId),
-            words = repository.getWords(bookId),
-            showWordAddPage = false
-        )
+            uiState = uiState.copy(
+                bookId = bookId,
+                wordBook = repository.getBook(bookId),
+                words = repository.getWords(bookId),
+                showWordAddPage = false
+            )
+        }
     }
 
     fun onWordClick(word: Word) {
@@ -79,14 +94,16 @@ class WordBookDetailViewModel(
     fun onWordUpdated(word: Word) {
         val bookId = currentBookId ?: return
 
-        repository.updateWord(bookId, word)
+        viewModelScope.launch {
+            repository.updateWord(bookId, word)
 
-        uiState = uiState.copy(
-            bookId = bookId,
-            wordBook = repository.getBook(bookId),
-            words = repository.getWords(bookId),
-            editingWord = null
-        )
+            uiState = uiState.copy(
+                bookId = bookId,
+                wordBook = repository.getBook(bookId),
+                words = repository.getWords(bookId),
+                editingWord = null
+            )
+        }
     }
 
     fun onDeleteWordClick(word: Word) {
@@ -101,14 +118,16 @@ class WordBookDetailViewModel(
         val bookId = currentBookId ?: return
         val word = uiState.wordPendingDelete ?: return
 
-        repository.deleteWord(bookId, word.id)
+        viewModelScope.launch {
+            repository.deleteWord(bookId, word.id)
 
-        uiState = uiState.copy(
-            bookId = bookId,
-            wordBook = repository.getBook(bookId),
-            words = repository.getWords(bookId),
-            selectedWord = null,
-            wordPendingDelete = null
-        )
+            uiState = uiState.copy(
+                bookId = bookId,
+                wordBook = repository.getBook(bookId),
+                words = repository.getWords(bookId),
+                selectedWord = null,
+                wordPendingDelete = null
+            )
+        }
     }
 }

@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
-import com.akira.miokotoba.model.SampleData
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioRadius
@@ -65,7 +64,7 @@ import kotlin.random.Random
 
 @Composable
 fun StudyPage(
-    words: List<Word> = SampleData.wordsForBook("1"),
+    words: List<Word>,
     onBack: (() -> Unit)? = null
 ) {
     if (words.isEmpty()) {

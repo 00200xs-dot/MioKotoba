@@ -4,15 +4,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.akira.miokotoba.AppContainer
 import com.akira.miokotoba.data.WordBookRepository
 import com.akira.miokotoba.model.WordBook
+import kotlinx.coroutines.launch
 
 class WordBookViewModel(
     private val repository: WordBookRepository = AppContainer.wordBookRepository
 ) : ViewModel() {
-    var uiState by mutableStateOf(WordBookUiState(books = repository.getBooks()))
+
+    var uiState by mutableStateOf(WordBookUiState())
         private set
+
+    init {
+        refreshBooks()
+    }
+
+    fun refreshBooks() {
+        viewModelScope.launch {
+            uiState = uiState.copy(books = repository.getBooks())
+        }
+    }
 
     fun onSearchQueryChange(query: String) {
         uiState = uiState.copy(searchQuery = query)
@@ -53,27 +66,29 @@ class WordBookViewModel(
 
         val editingBook = uiState.editingBook
 
-        if (editingBook != null) {
-            repository.updateBook(
-                editingBook.copy(
+        viewModelScope.launch {
+            if (editingBook != null) {
+                repository.updateBook(
+                    editingBook.copy(
+                        title = title,
+                        description = description
+                    )
+                )
+            } else {
+                repository.addBook(
                     title = title,
                     description = description
                 )
-            )
-        } else {
-            repository.addBook(
-                title = title,
-                description = description
+            }
+
+            uiState = uiState.copy(
+                books = repository.getBooks(),
+                showAddSheet = false,
+                editingBook = null,
+                newBookTitle = "",
+                newBookDescription = ""
             )
         }
-
-        uiState = uiState.copy(
-            books = repository.getBooks(),
-            showAddSheet = false,
-            editingBook = null,
-            newBookTitle = "",
-            newBookDescription = ""
-        )
     }
 
     fun onEditBookClick(book: WordBook) {
@@ -96,11 +111,13 @@ class WordBookViewModel(
     fun onConfirmDeleteBook() {
         val book = uiState.bookPendingDelete ?: return
 
-        repository.deleteBook(book.id)
+        viewModelScope.launch {
+            repository.deleteBook(book.id)
 
-        uiState = uiState.copy(
-            books = repository.getBooks(),
-            bookPendingDelete = null
-        )
+            uiState = uiState.copy(
+                books = repository.getBooks(),
+                bookPendingDelete = null
+            )
+        }
     }
 }
