@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.akira.miokotoba.R
+import com.akira.miokotoba.model.ReviewState
 import com.akira.miokotoba.model.Word
 import com.akira.miokotoba.ui.design.MioMotion
 import com.akira.miokotoba.ui.design.MioRadius
@@ -65,6 +66,7 @@ import kotlin.random.Random
 @Composable
 fun StudyPage(
     words: List<Word>,
+    onWordReviewed: (Word, ReviewState) -> Unit,
     onBack: (() -> Unit)? = null
 ) {
     if (words.isEmpty()) {
@@ -75,7 +77,9 @@ fun StudyPage(
     var isFlipped by rememberSaveable { mutableStateOf(false) }
     var currentIndex by rememberSaveable { mutableIntStateOf(0) }
     var reviewedCount by rememberSaveable { mutableIntStateOf(0) }
+    // 词卡是否正在移动
     var isCardMoving by remember { mutableStateOf(false) }
+    // 当前单词
     val currentWord = words[currentIndex.coerceIn(words.indices)]
 
     val offsetY = remember { androidx.compose.animation.core.Animatable(0f) }
@@ -132,11 +136,16 @@ fun StudyPage(
             RatingBar(
                 visible = isFlipped,
                 modifier = Modifier.align(Alignment.BottomCenter),
-                onRate = {
+                onRate = { selectedState ->
+                    // 判断卡片是否在移动, 避免用户过快点击
                     if (isCardMoving) return@RatingBar
+                    isCardMoving = true
 
+                    // 通知上层当前的单词以及用户选择的状态
+                    onWordReviewed(currentWord, selectedState)
+
+                    // 卡片退出动画
                     scope.launch {
-                        isCardMoving = true
                         isFlipped = false
                         exitCard(
                             offsetY = offsetY,
@@ -213,7 +222,7 @@ private fun StudySessionHeader(
 private fun RatingBar(
     visible: Boolean,
     modifier: Modifier = Modifier,
-    onRate: () -> Unit
+    onRate: (ReviewState) -> Unit
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -240,7 +249,7 @@ private fun RatingBar(
                 ReviewLevel.entries.forEach { level ->
                     RatingChip(
                         level = level,
-                        onClick = onRate,
+                        onClick = { onRate(level.reviewState) },
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -318,12 +327,13 @@ private suspend fun exitCard(
 private enum class ReviewLevel(
     val label: String,
     val iconRes: Int,
-    val color: Color
+    val color: Color,
+    val reviewState: ReviewState
 ) {
-    Again("不认识", R.drawable.ic_level_not_know, Color(0xFFB3261E)),
-    Vague("模糊", R.drawable.ic_level_blurry, Color(0xFF8A5A00)),
-    Know("认识", R.drawable.ic_level_know, Color(0xFF146C43)),
-    Easy("简单", R.drawable.ic_level_easy, Color(0xFF005CBB));
+    Again("不认识", R.drawable.ic_level_not_know, Color(0xFFB3261E), ReviewState.Again),
+    Vague("模糊", R.drawable.ic_level_blurry, Color(0xFF8A5A00), ReviewState.Vague),
+    Know("认识", R.drawable.ic_level_know, Color(0xFF146C43), ReviewState.Know),
+    Easy("简单", R.drawable.ic_level_easy, Color(0xFF005CBB), ReviewState.Easy);
 }
 
 @Composable

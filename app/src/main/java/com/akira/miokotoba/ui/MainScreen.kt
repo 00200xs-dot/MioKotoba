@@ -6,20 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.akira.miokotoba.AppContainer
-import com.akira.miokotoba.model.Word
-import com.akira.miokotoba.ui.components.PlaceholderPage
 import com.akira.miokotoba.ui.features.study.KanaChartPage
 import com.akira.miokotoba.ui.features.study.StudyPage
+import com.akira.miokotoba.ui.features.study.StudyViewModel
 import com.akira.miokotoba.ui.features.wordbook.WordBookDetailPage
 import com.akira.miokotoba.ui.features.wordbook.WordBookDetailViewModel
 import com.akira.miokotoba.ui.navigation.Screen
@@ -35,7 +29,6 @@ import com.akira.miokotoba.ui.navigation.slideOutToRight
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val wordBookRepository = AppContainer.wordBookRepository
 
     val wordBookDetailViewModel: WordBookDetailViewModel = viewModel()
     val wordBookDetailUiState = wordBookDetailViewModel.uiState
@@ -79,15 +72,23 @@ fun MainScreen() {
                 )
             }
             composable(Screen.StudySession.route) { backStackEntry ->
+                val studyViewModel: StudyViewModel = viewModel()
                 val bookId = backStackEntry.arguments?.getString("bookId") ?: return@composable
-                var words by remember(bookId) { mutableStateOf<List<Word>>(emptyList()) }
+                val studyUiState = studyViewModel.uiState
 
                 LaunchedEffect(bookId) {
-                    words = wordBookRepository.getWords(bookId)
+                    studyViewModel.loadSession(bookId)
                 }
 
                 StudyPage(
-                    words = words,
+                    words = studyUiState.words,
+                    onWordReviewed = { reviewedWord, selectedState ->
+                        studyViewModel.onWordReviewed(
+                            bookId = bookId,
+                            reviewedWord = reviewedWord,
+                            reviewState = selectedState
+                        )
+                    },
                     onBack = { navController.popBackStack() }
                 )
             }
